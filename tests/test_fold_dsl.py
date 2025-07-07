@@ -32,9 +32,11 @@ def test_fold_dsl_valid():
         sections=[section],
         links=links,
         meta=meta,
-        semantic=semantic
+        semantic=semantic,
+        tags=["unit"]
     )
 
     assert dsl.id == "test-001"
     assert len(dsl.sections) == 1
     assert dsl.meta.author == "q2t-kanrinin"
+    assert dsl.tags == ["unit"]
