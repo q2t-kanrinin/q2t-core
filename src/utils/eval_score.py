@@ -1,6 +1,7 @@
 import yaml
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from src.models.fold_dsl import FoldDSL, Section
+from src.validators.check_structure import validate_links
 
 
 def load_eval_template(path: str = "docs/tension_eval.yaml") -> Dict[str, Any]:
@@ -8,7 +9,11 @@ def load_eval_template(path: str = "docs/tension_eval.yaml") -> Dict[str, Any]:
         return yaml.safe_load(f)
 
 
-def compute_eval_scores(dsl: FoldDSL, eval_template: Dict[str, Any]) -> Dict[str, Any]:
+def compute_eval_scores(
+    dsl: FoldDSL, eval_template: Dict[str, Any], yaml_path: Optional[str] = None
+) -> Dict[str, Any]:
+    if yaml_path:
+        validate_links(dsl, yaml_path)
     def count_depth(section: Section, level: int = 1) -> int:
         if not section.children:
             return level
@@ -66,10 +71,11 @@ def sum_sections_tension(section: Section) -> int:
 
 if __name__ == "__main__":
     from src.utils.dsl_parser import DSLParser
-    parser = DSLParser("docs/fold_dsl-sample.yaml")
+    yaml_file = "docs/fold_dsl-sample.yaml"
+    parser = DSLParser(yaml_file)
     dsl = parser.parse()
     template = load_eval_template()
-    scores = compute_eval_scores(dsl, template)
+    scores = compute_eval_scores(dsl, template, yaml_path=yaml_file)
     print("\n=== 評価スコア ===")
     for axis, score in scores.items():
         print(f"{axis}: {score:.2f}")
