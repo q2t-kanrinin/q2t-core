@@ -28,6 +28,7 @@ class Semantic(BaseModel):
 class FoldDSL(BaseModel):
     id: str
     title: Optional[str] = None
+    tags: List[str] = Field(default_factory=list)
     sections: List[Section]
     links: List[Link]
     meta: Meta
