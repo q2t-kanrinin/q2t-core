@@ -23,7 +23,12 @@ class DSLParser:
             raise ValueError("path is required")
         self.path = target
         with open(target, "r", encoding="utf-8") as f:
-            data: CommentedMap = self.yaml.load(f)
+            raw = f.read()
+
+        if "\u2705" in raw:  # cut off non-YAML notes starting with check mark
+            raw = raw.split("\u2705", 1)[0]
+
+        data: CommentedMap = self.yaml.load(raw)
 
         meta_from_comments = self._extract_comment_metadata(data)
         self.meta_tags = meta_from_comments.get("tags", [])
