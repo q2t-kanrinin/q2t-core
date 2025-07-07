@@ -20,3 +20,30 @@ rad.json
 *.flf
 #Test results file
 TestResults.xml
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+
+# Jupyter
+.ipynb_checkpoints/
+
+# VSCode
+.vscode/
+
+# macOS
+.DS_Store
+
+# Obsidian
+.obsidian/
+
+# Logs
+log/**/*.log
+
+# Others
+.env
+*.sqlite3
