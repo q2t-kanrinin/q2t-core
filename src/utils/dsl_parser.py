@@ -11,15 +11,22 @@ from src.models.fold_dsl import FoldDSL, Section, Link, Meta, Semantic
 class DSLParser:
     """Parse fold_dsl YAML files while capturing metadata from comments."""
 
-    def __init__(self) -> None:
+    def __init__(self, path: str | Path | None = None) -> None:
         self.yaml = YAML()
+        self.path: Path | None = Path(path) if path is not None else None
+        self.meta_tags: List[str] = []
 
-    def parse(self, path: str | Path) -> FoldDSL:
+    def parse(self, path: str | Path | None = None) -> FoldDSL:
         """Load YAML from *path* and convert to :class:`FoldDSL`."""
-        with open(path, "r", encoding="utf-8") as f:
+        target = Path(path) if path is not None else self.path
+        if target is None:
+            raise ValueError("path is required")
+        self.path = target
+        with open(target, "r", encoding="utf-8") as f:
             data: CommentedMap = self.yaml.load(f)
 
         meta_from_comments = self._extract_comment_metadata(data)
+        self.meta_tags = meta_from_comments.get("tags", [])
         section = self._parse_section(data["section"])
         links = [Link(**link) for link in data.get("links", [])]
         meta = Meta(**data.get("meta", {}))
