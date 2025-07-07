@@ -38,6 +38,17 @@ meta:
   author: string
   tags:
     - string
+
+### コメントメタデータ
+
+fold_dslファイルの先頭に`#title`と`#tags`を記述して、ノート全体のメタ情報をコメントとして保持できる。
+
+```
+#title: サンプルタイトル
+#tags: tag1, tag2
+```
+
+これらの行はYAMLには含まれないが、パーサーで取得可能とする。
 semantic（拡張要素）
 yaml
 コードをコピーする

@@ -1,100 +1,48 @@
-"""Utility to parse fold_dsl YAML files."""
-
-from __future__ import annotations
+"""Utilities for loading FoldDSL YAML files."""
 
 import yaml
+from typing import Dict, Tuple
+
 from ruamel.yaml import YAML
-from typing import List, Optional
 
-from src.models.fold_dsl import FoldDSL, Section, Link, Meta, Semantic
-
-
-class DSLParser:
-    """Parser for fold_dsl YAML files preserving comment metadata."""
-
-    def __init__(self, path: str) -> None:
-        self.path = path
-        self.meta_title: Optional[str] = None
-        self.meta_tags: List[str] = []
-        self.dsl: Optional[FoldDSL] = None
-
-    def parse(self) -> FoldDSL:
-        """Parse the YAML file and return a :class:`FoldDSL` instance."""
-        with open(self.path, "r", encoding="utf-8") as f:
-            lines = f.readlines()
-
-        comment_lines: List[str] = []
-        yaml_start_index = 0
-        for idx, line in enumerate(lines):
-            if line.lstrip().startswith("#"):
-                comment_lines.append(line.strip())
-                continue
-            if line.strip() == "":
-                continue
-            yaml_start_index = idx
-            break
-
-        self._parse_meta_comments(comment_lines)
-
-        yaml_loader = YAML(typ="safe")
-        yaml_lines: List[str] = []
-        for line in lines[yaml_start_index:]:
-            if line.lstrip().startswith("\u2705"):
-                break
-            yaml_lines.append(line)
-        yaml_content = "".join(yaml_lines)
-        data = yaml_loader.load(yaml_content)
-
-        self.dsl = self._map_to_model(data)
-        return self.dsl
-
-    def _parse_meta_comments(self, comments: List[str]) -> None:
-        yaml_loader = YAML(typ="safe")
-        for line in comments:
-            text = line.lstrip("#").strip()
-            if text.startswith("title:"):
-                self.meta_title = text.split("title:", 1)[1].strip()
-            elif text.startswith("tags:"):
-                tag_text = text.split("tags:", 1)[1].strip()
-                try:
-                    parsed = yaml_loader.load(tag_text)
-                    if isinstance(parsed, list):
-                        self.meta_tags = parsed
-                    elif parsed is not None:
-                        self.meta_tags = [str(parsed)]
-                except Exception:
-                    self.meta_tags = [tag_text]
-
-    def _parse_section(self, node: dict) -> Section:
-        children = [self._parse_section(c) for c in node.get("children", [])]
-        return Section(
-            id=node["id"],
-            name=node["name"],
-            description=node.get("description"),
-            tension=node.get("tension", 0),
-            children=children,
-        )
-
-    def _map_to_model(self, data: dict) -> FoldDSL:
-        section = self._parse_section(data["section"])
-        links = [Link(**l) for l in data.get("links", [])]
-        meta = Meta(**data.get("meta", {}))
-        semantic = Semantic(**data.get("semantic", {}))
-
-        return FoldDSL(
-            id=data.get("id", section.id),
-            title=self.meta_title,
-            sections=[section],
-            links=links,
-            meta=meta,
-            semantic=semantic,
-        )
+from src.models.fold_dsl import FoldDSL
 
 def load_fold_dsl(path: str) -> dict:
-    """Load a fold_dsl file using PyYAML (legacy)."""
+    """Load a FoldDSL YAML file and return the raw dictionary."""
     with open(path, "r", encoding="utf-8") as f:
         data = yaml.safe_load(f)
     return data
+
+
+def parse_fold_dsl(path: str) -> Tuple[FoldDSL, Dict[str, str]]:
+    """Parse a FoldDSL YAML file preserving comments.
+
+    Parameters
+    ----------
+    path: str
+        Path to the YAML file.
+
+    Returns
+    -------
+    Tuple[FoldDSL, Dict[str, str]]
+        The ``FoldDSL`` object along with a mapping from top level keys to their
+        comments (if any).
+    """
+    yaml_parser = YAML()
+    with open(path, "r", encoding="utf-8") as f:
+        data = yaml_parser.load(f)
+
+    comments: Dict[str, str] = {}
+    ca = getattr(data, "ca", None)
+    if ca and getattr(ca, "items", None):
+        for key, val in ca.items.items():
+            if val:
+                token = val[2] or val[0]
+                if token:
+                    comments[key] = token.value.lstrip("#").strip()
+
+    dsl = FoldDSL(**data)
+    return dsl, comments
 
 def print_section_tree(section: dict, level: int = 0):
     indent = "  " * level
