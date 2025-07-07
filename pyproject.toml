@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "q2t-core"
+version = "0.1.0"
+description = "FoldDSL-based structure management"
+requires-python = ">=3.10"
+authors = [{name="q2t project", email="dev@example.com"}]
+readme = "README.md"
+license = {text = "MIT"}
+dependencies = [
+    "PyYAML>=6.0",
+    "pydantic>=2.0",
+    "ruamel.yaml>=0.18",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=7.0"]
