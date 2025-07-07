@@ -2,12 +2,19 @@ from __future__ import annotations
 from pydantic import BaseModel, Field, model_validator
 from typing import List, Optional
 
+
+class NoteNode(BaseModel):
+    """Non-structural annotation node."""
+
+    text: str
+
 class Section(BaseModel):
     id: str
     name: str
     description: Optional[str] = None
     tension: int = Field(0, ge=0, le=3)
     children: List[Section] = Field(default_factory=list)
+    notes: List[NoteNode] = Field(default_factory=list)
 
 class Link(BaseModel):
     source: str
@@ -64,4 +71,4 @@ def _collect_ids(section: Section) -> List[str]:
         ids.extend(_collect_ids(child))
     return ids
 
-__all__ = ["Section", "Link", "Meta", "Semantic", "FoldDSL"]
+__all__ = ["Section", "Link", "Meta", "Semantic", "FoldDSL", "NoteNode"]

@@ -5,7 +5,7 @@ from typing import Any, Dict, List
 from ruamel.yaml import YAML
 from ruamel.yaml.comments import CommentedMap
 
-from src.models.fold_dsl import FoldDSL, Section, Link, Meta, Semantic
+from src.models.fold_dsl import FoldDSL, Section, Link, Meta, Semantic, NoteNode
 
 
 class DSLParser:
@@ -63,13 +63,26 @@ class DSLParser:
         return result
 
     def _parse_section(self, data: Dict[str, Any]) -> Section:
-        children = [self._parse_section(child) for child in data.get("children", [])]
+        raw_children = data.get("children", [])
+        children: List[Section] = []
+        notes: List[NoteNode] = []
+
+        for child in raw_children:
+            if isinstance(child, dict) and "@note" in child:
+                notes.append(NoteNode(text=str(child["@note"])))
+            else:
+                children.append(self._parse_section(child))
+
+        if "@note" in data:
+            notes.append(NoteNode(text=str(data["@note"])))
+
         return Section(
             id=data["id"],
             name=data["name"],
             description=data.get("description"),
             tension=data.get("tension", 0),
             children=children,
+            notes=notes,
         )
 
 __all__ = ["DSLParser"]

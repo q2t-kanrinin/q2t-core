@@ -30,3 +30,32 @@ semantic:
     assert parser.meta_tags == ["foo", "bar"]
     assert dsl.sections[0].id == "root"
     assert dsl.meta.author == "tester"
+
+
+def test_dslparser_handles_note_node(tmp_path: Path) -> None:
+    yaml_text = """\
+section:
+  id: root
+  name: Root
+  children:
+    - id: child1
+      name: Child1
+    - @note: sample note
+links: []
+meta:
+  version: "0.1"
+  created: "2025-07-07"
+  author: "tester"
+semantic:
+  keywords: []
+  themes: []
+"""
+    path = tmp_path / "note.yaml"
+    path.write_text(yaml_text, encoding="utf-8")
+
+    parser = DSLParser(str(path))
+    dsl = parser.parse()
+
+    root_section = dsl.sections[0]
+    assert len(root_section.notes) == 1
+    assert root_section.notes[0].text == "sample note"
