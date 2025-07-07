@@ -28,7 +28,10 @@ class Semantic(BaseModel):
 class FoldDSL(BaseModel):
     id: str
     title: Optional[str] = None
-    sections: List[str] = []
+    sections: List[Section] = Field(default_factory=list)
+    links: List[Link] = Field(default_factory=list)
+    meta: Optional[Meta] = None
+    semantic: Optional[Semantic] = None
 
     @model_validator(mode="before")
     @classmethod
@@ -44,3 +47,29 @@ def _collect_ids(section: Section) -> List[str]:
     return ids
 
 __all__ = ["Section", "Link", "Meta", "Semantic", "FoldDSL"]
+
+# ---- テスト用インスタンス例（動作確認用） ----
+section = Section(
+    id="root",
+    name="Root Section",
+    children=[
+        Section(id="child1", name="Child 1"),
+        Section(id="child2", name="Child 2"),
+    ]
+)
+
+links = [
+    Link(source="child1", target="child2", type="related", weight=0.5)
+]
+
+meta = Meta(version="0.1", created="2025-07-08", author="you")
+semantic = Semantic(keywords=["structure"], themes=["testing"])
+
+dsl = FoldDSL(
+    id="dsl_001",
+    title="Test DSL",
+    sections=[section],
+    links=links,
+    meta=meta,
+    semantic=semantic
+)
