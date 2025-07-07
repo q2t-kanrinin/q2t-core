@@ -1,0 +1,76 @@
+# fold_dsl-sample.yaml
+
+section:
+  id: A-01
+  name: "抽象"
+  description: "抽象概念に関するトップ階層"
+  tension: 2
+  children:
+    - id: A-01-01
+      name: "概念"
+      description: "概念のまとまりを扱う"
+      tension: 1
+      children:
+        - id: A-01-01-01
+          name: "共通性"
+          description: "共通性を見出すプロセス"
+          tension: 0
+        - id: A-01-01-02
+          name: "差異性"
+          description: "差異を見出すプロセス"
+          tension: 0
+    - id: A-01-02
+      name: "普遍"
+      description: "普遍化の視点"
+      tension: 1
+
+links:
+  - source: A-01-01-01
+    target: A-01-02
+    type: "related"
+    weight: 0.7
+  - source: A-01-01-02
+    target: A-01
+    type: "context"
+    weight: 0.5
+
+meta:
+  version: "0.1"
+  created: "2025-07-07"
+  author: "q2t-kanrinin"
+  tags:
+    - "抽象"
+    - "分類"
+    - "進化"
+
+semantic:
+  keywords:
+    - "抽象"
+    - "概念"
+    - "普遍"
+  themes:
+    - "φψμモデル"
+
+
+✅ この正式サンプルのポイント
+section
+
+抽象 → 概念 → 共通性/差異性
+
+抽象 → 普遍
+のツリーを分→類モデルで表現
+
+links
+
+「共通性」と「普遍」をつなぐ
+
+「差異性」とトップ抽象をつなぐ
+→ bridge的リンクを明示
+
+meta
+
+バージョン履歴・タグ・著者情報を最小構成
+
+semantic
+
+φψμの文脈テーマを入れて拡張性を示す
