@@ -1,4 +1,5 @@
 from src.models.fold_dsl import FoldDSL, Section, Link, Meta, Semantic
+import pytest
 
 def test_fold_dsl_valid():
     section = Section(
@@ -40,3 +41,22 @@ def test_fold_dsl_valid():
     assert len(dsl.sections) == 1
     assert dsl.meta.author == "q2t-kanrinin"
     assert dsl.tags == ["unit"]
+
+
+def test_fold_dsl_duplicate_section_id():
+    section = Section(id="A-01", name="root", children=[Section(id="A-01", name="dup")])
+    meta = Meta(version="0.1", created="2025-07-07", author="tester")
+    semantic = Semantic()
+
+    with pytest.raises(ValueError, match="section.id must be unique"):
+        FoldDSL(id="dup-test", sections=[section], links=[], meta=meta, semantic=semantic)
+
+
+def test_fold_dsl_link_invalid_target():
+    section = Section(id="A-01", name="root")
+    meta = Meta(version="0.1", created="2025-07-07", author="tester")
+    semantic = Semantic()
+    links = [Link(source="A-01", target="nonexistent", type="related", weight=0.5)]
+
+    with pytest.raises(ValueError, match="link target 'nonexistent' is not defined"):
+        FoldDSL(id="link-test", sections=[section], links=links, meta=meta, semantic=semantic)
