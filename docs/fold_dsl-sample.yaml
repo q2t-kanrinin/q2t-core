@@ -1,4 +1,6 @@
 # fold_dsl-sample.yaml
+#title: Sample Fold DSL
+#tags: [example]
 
 section:
   id: A-01
