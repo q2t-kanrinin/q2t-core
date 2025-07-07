@@ -41,6 +41,23 @@ class FoldDSL(BaseModel):
             raise ValueError("Field 'id' is required.")
         return values
 
+    @model_validator(mode="after")
+    def validate_structure(self) -> "FoldDSL":
+        ids: List[str] = []
+        for root in self.sections:
+            ids.extend(_collect_ids(root))
+
+        if len(ids) != len(set(ids)):
+            raise ValueError("section.id must be unique")
+
+        for link in self.links:
+            if link.source not in ids:
+                raise ValueError(f"link source '{link.source}' is not defined in sections")
+            if link.target not in ids:
+                raise ValueError(f"link target '{link.target}' is not defined in sections")
+
+        return self
+
 def _collect_ids(section: Section) -> List[str]:
     ids = [section.id]
     for child in section.children:
