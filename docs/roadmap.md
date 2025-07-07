@@ -30,7 +30,7 @@ markdown
 
 ## フェーズ3（OSS公開）
 
-- README / CONTRIBUTING / CODE_OF_CONDUCTを整備
+- README / CONTRIBUTING / CODE_OF_CONDUCTを整備（完了）
 - issueテンプレートの標準化
 - 初期PRの受け入れ準備
 - LICENSE表記の最終決定
