@@ -1,9 +1,11 @@
-from src.utils.dsl_parser import DSLParser
+from pathlib import Path
 from src.models.fold_dsl import FoldDSL
+from src.utils.dsl_parser import DSLParser
 
 
-def test_dsl_parser_extracts_metadata(tmp_path):
-    yaml_text = """#title: Sample DSL
+def test_dslparser_parses_metadata(tmp_path: Path) -> None:
+    yaml_text = """\
+#title: Sample DSL
 #tags: [foo, bar]
 section:
   id: root
@@ -20,10 +22,11 @@ semantic:
     path = tmp_path / "sample.yaml"
     path.write_text(yaml_text, encoding="utf-8")
 
-    parser = DSLParser()
-    dsl = parser.parse(str(path))
+    parser = DSLParser(str(path))
+    dsl: FoldDSL = parser.parse()
 
     assert isinstance(dsl, FoldDSL)
     assert dsl.title == "Sample DSL"
-    assert dsl.tags == ["foo", "bar"]
+    assert parser.meta_tags == ["foo", "bar"]
     assert dsl.sections[0].id == "root"
+    assert dsl.meta.author == "tester"

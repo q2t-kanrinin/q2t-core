@@ -1,22 +1,31 @@
-from src.utils.dsl_parser import DSLParser
+from src.utils.dsl_parser import DSLParser  # ✅ 外部化されたクラスを利用
 
-def load_fold_dsl(path: str):
-    parser = DSLParser()
-    return parser.parse(path)
+import yaml
+from src.models.fold_dsl import FoldDSL, Section
 
-def print_section_tree(section, level: int = 0):
+
+def load_fold_dsl(path: str) -> dict:
+    """Legacy fallback: Load FoldDSL YAML as raw dict."""
+    with open(path, "r", encoding="utf-8") as f:
+        return yaml.safe_load(f)
+
+
+def print_section_tree(section: Section, level: int = 0):
     indent = "  " * level
     print(f"{indent}- {section.name} (ID: {section.id}, tension: {section.tension})")
-    for child in getattr(section, 'children', []):
+    for child in section.children:
         print_section_tree(child, level + 1)
 
+
 if __name__ == "__main__":
-    dsl = load_fold_dsl("docs/fold_dsl-sample.yaml")
+    parser = DSLParser("docs/fold_dsl-sample.yaml")
+    dsl: FoldDSL = parser.parse()
 
-    print(f"title: {dsl.title}")
-    print(f"tags: {dsl.tags}")
+    print(f"\n=== Meta ===")
+    print(f"Title: {dsl.title}")
+    print(f"Tags: {parser.meta_tags}")
 
-    print("=== Fold構造 ===")
+    print("\n=== Fold構造 ===")
     print_section_tree(dsl.sections[0])
 
     print("\n=== Bridgeリンク ===")
