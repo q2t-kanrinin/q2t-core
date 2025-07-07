@@ -1,80 +1,67 @@
-import uuid
-from typing import Dict, Any, List
-
-from src.models.fold_dsl import FoldDSL, Section, Link
+from typing import Dict, Any
+from src.models.fold_dsl import FoldDSL, Section
 
 
-def generate_canvas_from_fold_dsl(dsl: FoldDSL) -> Dict[str, Any]:
+def generate_canvas(fold: FoldDSL) -> Dict[str, Any]:
     nodes = []
     edges = []
 
-    # どのノードがbridge対象かを事前に収集
-    bridge_nodes = set()
-    for link in dsl.links:
-        bridge_nodes.add(link.source)
-        bridge_nodes.add(link.target)
+    def resolve_position(section: Section) -> Dict[str, int]:
+        pos = getattr(section, "position", {}) or {}
+        x = 300 * pos.get("phi", 0)
+        y = 300 * pos.get("psi", 0)
+        return {"x": x, "y": y}
 
-    def get_state_marker(section: Section) -> List[str]:
-        stages = []
-        if section.semantic and section.semantic.keywords:
-            stages.append("phi")
-        if section.semantic and section.semantic.themes:
-            stages.append("psi")
-        if (section.tension or 0) > 0 or section.id in bridge_nodes:
-            stages.append("mu")
-        return stages
+    def resolve_color(tension: int) -> str:
+        return {
+            0: "#cccccc",
+            1: "#3399ff",
+            2: "#ffaa33",
+            3: "#ff3333"
+        }.get(tension, "#cccccc")
 
-    def traverse(section: Section, depth: int = 0, index: int = 0, parent_id: str = None):
-        node_id = section.id
+    def add_nodes(section: Section):
+        position = resolve_position(section)
+        tension = section.tension or 0
         label = section.name
 
-        # φψμ座標の初期推定
-        phi = depth
-        psi = len(section.children)
-        mu = section.tension or 0
+        if getattr(fold, "state_marker", []):
+            markers = ", ".join(fold.state_marker)
+            label += f" [{markers}]"
 
-        # ノード作成
-        node = {
-            "id": node_id,
+        nodes.append({
+            "id": section.id,
             "type": "text",
-            "x": depth * 300 + 100 * index,
-            "y": index * 150,
-            "width": 200,
-            "height": 100,
             "label": label,
-            "state_marker": get_state_marker(section),
-            "metadata": {
-                "tension": section.tension,
-                "phi": phi,
-                "psi": psi,
-                "mu": mu
-            },
-            "content": label,
-        }
-        nodes.append(node)
+            "position": position,
+            "color": resolve_color(tension)
+        })
+        for child in section.children:
+            add_nodes(child)
 
-        # 再帰的に子を処理
-        for i, child in enumerate(section.children):
-            traverse(child, depth + 1, i, node_id)
+    for section in fold.sections:
+        add_nodes(section)
 
-    # 最上位セクションのみ対象
-    for root in dsl.sections:
-        traverse(root)
+    for link in fold.links:
+        edges.append({
+            "id": f"edge-{link.source}-{link.target}",
+            "source": link.source,
+            "target": link.target,
+            "type": link.type
+        })
 
-    for link in dsl.links:
-        edge = {
-            "id": str(uuid.uuid4()),
-            "fromNode": link.source,
-            "toNode": link.target,
-            "type": "arrow",
-            "metadata": {
-                "type": link.type,
-                "weight": link.weight
-            }
-        }
-        edges.append(edge)
+    return {"nodes": nodes, "edges": edges}
 
-    return {
-        "nodes": nodes,
-        "edges": edges
-    }
+
+def save_canvas(canvas: dict, path: str) -> None:
+    import json
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(canvas, f, indent=2, ensure_ascii=False)
+
+
+if __name__ == "__main__":
+    from src.utils.dsl_parser import DSLParser
+    parser = DSLParser("docs/fold_dsl-sample.yaml")
+    fold = parser.parse()
+    canvas = generate_canvas(fold)
+    save_canvas(canvas, "docs/fold_canvas.canvas")

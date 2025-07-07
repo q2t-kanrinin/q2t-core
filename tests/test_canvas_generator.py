@@ -1,44 +1,56 @@
 import json
-import tempfile
 from pathlib import Path
 from src.utils.dsl_parser import DSLParser
-from src.utils.canvas_generator import generate_canvas_from_fold_dsl
+from src.utils.canvas_generator import generate_canvas
 
 
-def test_generate_canvas_from_sample_yaml():
-    parser = DSLParser("docs/fold_dsl-sample.yaml")
-    dsl = parser.parse()
+def test_generate_canvas_minimal(tmp_path):
+    yaml_text = """
+    #title: Test Fold
+    #tags: [test]
+    section:
+      id: root
+      name: Root Node
+      tension: 2
+      children:
+        - id: child
+          name: Child Node
+          tension: 1
+    links:
+      - source: root
+        target: child
+        type: bridge
+    meta:
+      version: "0.1"
+      created: "2025-07-09"
+      author: tester
+    semantic:
+      keywords: []
+      themes: []
+    """
+    fold_path = tmp_path / "test_fold.yaml"
+    fold_path.write_text(yaml_text, encoding="utf-8")
 
-    canvas = generate_canvas_from_fold_dsl(dsl)
+    fold = DSLParser(str(fold_path)).parse()
+    canvas = generate_canvas(fold)
 
     assert "nodes" in canvas
     assert "edges" in canvas
-    assert isinstance(canvas["nodes"], list)
-    assert isinstance(canvas["edges"], list)
-    assert len(canvas["nodes"]) > 0
+    assert len(canvas["nodes"]) == 2
+    assert len(canvas["edges"]) == 1
 
-    for node in canvas["nodes"]:
-        assert "id" in node
-        assert "state_marker" in node
-        assert isinstance(node["state_marker"], list)
-        for mark in node["state_marker"]:
-            assert mark in ["phi", "psi", "mu"]
+    node_ids = [n["id"] for n in canvas["nodes"]]
+    assert "root" in node_ids
+    assert "child" in node_ids
 
-    for edge in canvas["edges"]:
-        assert "fromNode" in edge
-        assert "toNode" in edge
-        assert "metadata" in edge
+    edge = canvas["edges"][0]
+    assert edge["source"] == "root"
+    assert edge["target"] == "child"
+    assert edge["type"] == "bridge"
 
+    # オプション：Canvas構造を一時ファイルに保存して中身を確認
+    output_path = tmp_path / "out.canvas"
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(canvas, f, indent=2, ensure_ascii=False)
 
-def test_canvas_output_to_file(tmp_path: Path):
-    parser = DSLParser("docs/fold_dsl-sample.yaml")
-    dsl = parser.parse()
-    canvas = generate_canvas_from_fold_dsl(dsl)
-
-    out_path = tmp_path / "fold_canvas.canvas"
-    with open(out_path, "w", encoding="utf-8") as f:
-        json.dump(canvas, f, ensure_ascii=False, indent=2)
-
-    assert out_path.exists()
-    content = json.loads(out_path.read_text(encoding="utf-8"))
-    assert "nodes" in content and "edges" in content
+    assert output_path.exists()
