@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import List, Set
+
 from ruamel.yaml import YAML
 from ruamel.yaml.comments import CommentedMap
 
@@ -53,4 +55,71 @@ def validate_links(dsl: FoldDSL, yaml_path: str) -> None:
             line = link.lc.value("weight")[0] + 1
             raise ValueError(f"'weight' out of range at line {line}")
 
-__all__ = ["validate_links"]
+
+ALLOWED_COMMANDS = {
+    "節点",
+    "接続",
+    "属性",
+    "意味",
+    "状態",
+    "型",
+    "分岐",
+    "注釈",
+    "変化",
+    "ラベル",
+    "未定",
+}
+
+
+def check_fold_dsl(path: str) -> None:
+    """Run static checks on a fold_dsl text file.
+
+    Prints warnings on undefined commands, invalid indentation hierarchy and
+    duplicate node IDs.
+    """
+
+    with open(path, "r", encoding="utf-8") as f:
+        lines = f.readlines()
+
+    indent_stack: List[int] = []
+    prev_indent = 0
+    last_command: str | None = None
+    node_ids: Set[str] = set()
+
+    for lineno, line in enumerate(lines, 1):
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+
+        indent = len(line) - len(line.lstrip())
+        parts = stripped.split()
+        command = parts[0]
+
+        if command not in ALLOWED_COMMANDS:
+            print(f"{path}:{lineno}: 未定義の命令語 '{command}'")
+
+        if command == "節点":
+            node_id = parts[1] if len(parts) > 1 else ""
+            if node_id:
+                if node_id in node_ids:
+                    print(f"{path}:{lineno}: 同一ノードID '{node_id}' が重複")
+                else:
+                    node_ids.add(node_id)
+
+            if indent > prev_indent and last_command != "節点":
+                print(f"{path}:{lineno}: 階層インデントが不正")
+
+            while indent_stack and indent <= indent_stack[-1]:
+                indent_stack.pop()
+            indent_stack.append(indent)
+            last_command = "節点"
+            prev_indent = indent
+            continue
+
+        if indent > prev_indent:
+            print(f"{path}:{lineno}: 階層インデントが不正")
+
+        prev_indent = indent
+        last_command = command
+
+__all__ = ["validate_links", "check_fold_dsl"]
