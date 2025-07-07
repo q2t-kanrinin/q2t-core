@@ -1,9 +1,3 @@
-ChatGPT:
-おう、ほなsrc/README.md の叩き台いくで。
-
-✅ src/README.md たたき台
-markdown
-コードをコピーする
 # src - q2t-core
 
 このディレクトリは q2t-core のコアコードを管理します。
