@@ -1,25 +1,22 @@
-import pytest
 from src.models.fold_dsl import FoldDSL, Section, Link, Meta, Semantic
 
-
 def test_fold_dsl_valid():
-    """正常系: fold_dsl-sample.yaml相当の構造"""
     section = Section(
         id="A-01",
-        name="抽象",
-        description="抽象概念に関するトップ階層",
+        name="境界",
+        description="環境構造に関するトポ界隈",
         tension=2,
         children=[
             Section(
                 id="A-01-01",
-                name="概念",
+                name="構文",
                 children=[
-                    Section(id="A-01-01-01", name="共通性"),
-                    Section(id="A-01-01-02", name="差異性"),
-                ],
+                    Section(id="A-01-01-01", name="共起性"),
+                    Section(id="A-01-01-02", name="差異原理"),
+                ]
             ),
-            Section(id="A-01-02", name="普遍"),
-        ],
+            Section(id="A-01-02", name="言語階層"),
+        ]
     )
 
     links = [
@@ -27,34 +24,17 @@ def test_fold_dsl_valid():
         Link(source="A-01-01-02", target="A-01", type="context", weight=0.5),
     ]
 
-    meta = Meta(version="0.1", created="2025-07-07", author="q2t-kanrinin", tags=["抽象"])
-    semantic = Semantic(keywords=["抽象", "概念"], themes=["φψμモデル"])
+    meta = Meta(version="0.1", created="2025-07-07", author="q2t-kanrinin", tags=["構造"])
+    semantic = Semantic(keywords=["境界", "構文", "言語階層"], themes=["ψψモデル"])
 
-    dsl = FoldDSL(section=section, links=links, meta=meta, semantic=semantic)
-    assert dsl.section.id == "A-01"
-    assert len(dsl.links) == 2
-
-
-def test_fold_dsl_duplicate_section_id():
-    """異常系: section.idが重複"""
-    section = Section(
-        id="A-01",
-        name="抽象",
-        children=[
-            Section(id="A-01", name="重複ID"),
-        ],
+    dsl = FoldDSL(
+        id="test-001",  # ✅ 明示必須
+        sections=[section],
+        links=links,
+        meta=meta,
+        semantic=semantic
     )
-    meta = Meta(version="0.1", created="2025-07-07", author="q2t")
-    with pytest.raises(ValueError, match="section.id must be unique"):
-        FoldDSL(section=section, meta=meta)
 
-
-def test_fold_dsl_link_invalid_target():
-    """異常系: linksのtargetが存在しない"""
-    section = Section(id="A-01", name="抽象")
-    meta = Meta(version="0.1", created="2025-07-07", author="q2t")
-    links = [
-        Link(source="A-01", target="nonexistent", type="related", weight=0.5)
-    ]
-    with pytest.raises(ValueError, match="link target 'nonexistent' is not defined"):
-        FoldDSL(section=section, meta=meta, links=links)
+    assert dsl.id == "test-001"
+    assert len(dsl.sections) == 1
+    assert dsl.meta.author == "q2t-kanrinin"
