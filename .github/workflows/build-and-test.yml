@@ -12,8 +12,9 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Show files
+      - name: Run tests
         run: |
-          echo "==== ls -R output ===="
+          echo "==== DEBUG START ===="
           ls -R
-          echo "==== END ===="
+          echo "==== DEBUG END ===="
+          pytest -v ./tests
