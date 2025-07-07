@@ -1,6 +1,6 @@
 from __future__ import annotations
+from pydantic import BaseModel, Field, model_validator
 from typing import List, Optional
-from pydantic import BaseModel, Field, root_validator
 
 class Section(BaseModel):
     id: str
@@ -26,27 +26,15 @@ class Semantic(BaseModel):
     themes: List[str] = Field(default_factory=list)
 
 class FoldDSL(BaseModel):
-    section: Section
-    links: List[Link] = Field(default_factory=list)
-    meta: Meta
-    semantic: Optional[Semantic] = None
+    id: str
+    title: Optional[str] = None
+    sections: List[str] = []
 
-    @root_validator
-    def _validate_integrity(cls, values: dict) -> dict:
-        section = values.get("section")
-        if section is None:
-            raise ValueError("section is required")
-
-        ids = list(_collect_ids(section))
-        if len(ids) != len(set(ids)):
-            raise ValueError("section.id must be unique")
-
-        link_list: List[Link] = values.get("links", [])
-        for link in link_list:
-            if link.source not in ids:
-                raise ValueError(f"link source '{link.source}' is not defined in sections")
-            if link.target not in ids:
-                raise ValueError(f"link target '{link.target}' is not defined in sections")
+    @model_validator(mode="before")
+    @classmethod
+    def check_required_fields(cls, values):
+        if "id" not in values:
+            raise ValueError("Field 'id' is required.")
         return values
 
 def _collect_ids(section: Section) -> List[str]:
