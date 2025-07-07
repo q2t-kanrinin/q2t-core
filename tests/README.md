@@ -1,9 +1,3 @@
-ChatGPT:
-おう、ほなtests/README.md の叩き台いくで。
-
-✅ tests/README.md たたき台
-markdown
-コードをコピーする
 # tests - q2t-core
 
 このディレクトリは q2t-core のユニットテスト・結合テストを管理します。
@@ -38,3 +32,9 @@ markdown
 
 ```bash
 pytest tests/
+将来的拡張
+テストデータの自動生成
+
+テンション履歴の変化パターン検証
+
+CIでの自動テスト連携
