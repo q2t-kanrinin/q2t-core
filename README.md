@@ -68,7 +68,11 @@ git clone https://github.com/yourname/q2t-core.git
 cd q2t-core
 python -m venv venv
 source venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements.txt  # installs PyYAML>=6.0, pydantic>=2.0, ruamel.yaml>=0.18
+
+# or install via the provided `pyproject.toml`
+# pip install .[test]
+
 python parse_fold_dsl.py
 🧭 今後の開発予定
 fold_dslパーサの完全Pydantic化
