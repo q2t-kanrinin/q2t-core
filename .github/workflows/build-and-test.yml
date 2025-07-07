@@ -13,8 +13,8 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run tests
-        run: |
-          echo "==== DEBUG START ===="
-          ls -R
-          echo "==== DEBUG END ===="
-          pytest -v ./tests
+       run: |
+         echo "==== DEBUG START ===="
+         ls -R
+         echo "==== DEBUG END ===="
+         PYTHONPATH=./ pytest -v ./tests
