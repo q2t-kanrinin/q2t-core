@@ -73,3 +73,4 @@ Canvasエクスポート
 
 ライセンス
 MIT
+コミュニティ行動規範は [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) を参照してください。
