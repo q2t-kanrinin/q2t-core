@@ -16,15 +16,15 @@ def generate_canvas_from_fold_dsl(dsl: FoldDSL) -> Dict[str, Any]:
 
     def get_state_marker(section: Section) -> List[str]:
         stages = []
-        if section.semantic and section.semantic.keywords:
+        if dsl.semantic and dsl.semantic.keywords:
             stages.append("phi")
-        if section.semantic and section.semantic.themes:
+        if dsl.semantic and dsl.semantic.themes:
             stages.append("psi")
         if (section.tension or 0) > 0 or section.id in bridge_nodes:
             stages.append("mu")
         return stages
 
-    def traverse(section: Section, depth: int = 0, index: int = 0, parent_id: str = None):
+    def traverse(section: Section, depth: int = 0, index: int = 0, parent_id: str | None = None):
         node_id = section.id
         label = section.name
 
@@ -37,17 +37,14 @@ def generate_canvas_from_fold_dsl(dsl: FoldDSL) -> Dict[str, Any]:
         node = {
             "id": node_id,
             "type": "text",
-            "x": depth * 300 + 100 * index,
-            "y": index * 150,
-            "width": 200,
-            "height": 100,
             "label": label,
+            "position": {"phi": phi, "psi": psi, "mu": mu},
+            "size": {"width": 200, "height": 100},
             "state_marker": get_state_marker(section),
             "metadata": {
                 "tension": section.tension,
-                "phi": phi,
-                "psi": psi,
-                "mu": mu
+                "keywords": dsl.semantic.keywords,
+                "themes": dsl.semantic.themes,
             },
             "content": label,
         }
@@ -64,13 +61,10 @@ def generate_canvas_from_fold_dsl(dsl: FoldDSL) -> Dict[str, Any]:
     for link in dsl.links:
         edge = {
             "id": str(uuid.uuid4()),
-            "fromNode": link.source,
-            "toNode": link.target,
-            "type": "arrow",
-            "metadata": {
-                "type": link.type,
-                "weight": link.weight
-            }
+            "source": link.source,
+            "target": link.target,
+            "type": link.type,
+            "weight": link.weight,
         }
         edges.append(edge)
 

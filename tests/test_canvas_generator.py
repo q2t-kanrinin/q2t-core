@@ -19,15 +19,18 @@ def test_generate_canvas_from_sample_yaml():
 
     for node in canvas["nodes"]:
         assert "id" in node
+        assert "position" in node
+        assert set(["phi", "psi", "mu"]).issubset(node["position"].keys())
         assert "state_marker" in node
         assert isinstance(node["state_marker"], list)
         for mark in node["state_marker"]:
             assert mark in ["phi", "psi", "mu"]
 
     for edge in canvas["edges"]:
-        assert "fromNode" in edge
-        assert "toNode" in edge
-        assert "metadata" in edge
+        assert "source" in edge
+        assert "target" in edge
+        assert "type" in edge
+        assert "weight" in edge
 
 
 def test_canvas_output_to_file(tmp_path: Path):
