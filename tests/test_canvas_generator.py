@@ -1,6 +1,6 @@
 import json
-import tempfile
 from pathlib import Path
+
 from src.utils.dsl_parser import DSLParser
 from src.utils.canvas_generator import generate_canvas_from_fold_dsl
 
@@ -17,20 +17,17 @@ def test_generate_canvas_from_sample_yaml():
     assert isinstance(canvas["edges"], list)
     assert len(canvas["nodes"]) > 0
 
+    allowed_colors = {"#cccccc", "#3399ff", "#ffaa33", "#ff3333"}
     for node in canvas["nodes"]:
-        assert "id" in node
-        assert "position" in node
-        assert set(["phi", "psi", "mu"]).issubset(node["position"].keys())
+        assert {"id", "label", "x", "y", "color"}.issubset(node)
+        assert node["color"] in allowed_colors
         assert "state_marker" in node
         assert isinstance(node["state_marker"], list)
         for mark in node["state_marker"]:
             assert mark in ["phi", "psi", "mu"]
 
     for edge in canvas["edges"]:
-        assert "source" in edge
-        assert "target" in edge
-        assert "type" in edge
-        assert "weight" in edge
+        assert {"id", "source", "target", "type", "weight"}.issubset(edge)
 
 
 def test_canvas_output_to_file(tmp_path: Path):
