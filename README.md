@@ -74,6 +74,9 @@ pip install -r requirements.txt  # installs PyYAML>=6.0, pydantic>=2.0, ruamel.y
 # pip install .[test]
 
 python parse_fold_dsl.py
+
+# Export Markdown notes for Dataview
+python -m src.utils.dataview_exporter docs/fold_dsl-sample.yaml docs/dataview_sample
 ```
 
 ### Running Tests
@@ -91,6 +94,8 @@ pytest tests/
 fold_dslパーサの完全Pydantic化
 
 Obsidian Canvasへの構造エクスポート
+
+Dataview連携用Markdown出力
 
 テンション可視化ダッシュボード
 
