@@ -79,6 +79,8 @@ python parse_fold_dsl.py
 python -m src.utils.dataview_exporter docs/fold_dsl-sample.yaml docs/dataview_sample
 ```
 
+Canvas へのエクスポート方法は [docs/canvas_generator.md](docs/canvas_generator.md) を参照してください。
+
 ### Running Tests
 
 Install the test dependencies and execute the suite:
@@ -90,18 +92,15 @@ pip install .[test]
 
 pytest tests/
 ```
-🧭 今後の開発予定
-fold_dslパーサの完全Pydantic化（完了）
+## 🧭 今後の開発予定
+- fold_dslパーサの完全Pydantic化
+- テンション可視化ダッシュボード
+- テンプレ進化のバージョン履歴管理
+- AST構造差分＋テンション流可視化
 
-Obsidian Canvasへの構造エクスポート
-
-Dataview連携用Markdown出力
-
-テンション可視化ダッシュボード
-
-テンプレ進化のバージョン履歴管理
-
-AST構造差分＋テンション流可視化
+### 完成済み
+- Obsidian Canvasへの構造エクスポート
+- Dataview連携用Markdown出力
 
 📜 ライセンスと規範
 ライセンス：MIT
