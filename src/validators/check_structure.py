@@ -76,8 +76,9 @@ ALLOWED_COMMANDS = {
 def check_fold_dsl(path: str) -> None:
     """Run static checks on a fold_dsl text file.
 
-    Prints warnings on undefined commands, invalid indentation hierarchy and
-    duplicate node IDs.
+    Raises :class:`ValueError` on undefined commands, invalid indentation
+    hierarchy, duplicate or empty node IDs and on references to undefined
+    labels.
     """
 
     with open(path, "r", encoding="utf-8") as f:
@@ -87,6 +88,7 @@ def check_fold_dsl(path: str) -> None:
     prev_indent = 0
     last_command: str | None = None
     node_ids: Set[str] = set()
+    labels: Set[str] = set()
 
     for lineno, line in enumerate(lines, 1):
         stripped = line.strip()
@@ -98,18 +100,18 @@ def check_fold_dsl(path: str) -> None:
         command = parts[0]
 
         if command not in ALLOWED_COMMANDS:
-            print(f"{path}:{lineno}: 未定義の命令語 '{command}'")
+            raise ValueError(f"{path}:{lineno}: 未定義の命令語 '{command}'")
 
         if command == "節点":
             node_id = parts[1] if len(parts) > 1 else ""
-            if node_id:
-                if node_id in node_ids:
-                    print(f"{path}:{lineno}: 同一ノードID '{node_id}' が重複")
-                else:
-                    node_ids.add(node_id)
+            if not node_id:
+                raise ValueError(f"{path}:{lineno}: ノードIDが空です")
+            if node_id in node_ids:
+                raise ValueError(f"{path}:{lineno}: 同一ノードID '{node_id}' が重複")
+            node_ids.add(node_id)
 
             if indent > prev_indent and last_command != "節点":
-                print(f"{path}:{lineno}: 階層インデントが不正")
+                raise ValueError(f"{path}:{lineno}: 階層インデントが不正")
 
             while indent_stack and indent <= indent_stack[-1]:
                 indent_stack.pop()
@@ -118,8 +120,21 @@ def check_fold_dsl(path: str) -> None:
             prev_indent = indent
             continue
 
+        if command == "ラベル":
+            label = parts[1] if len(parts) > 1 else ""
+            if not label:
+                raise ValueError(f"{path}:{lineno}: ラベル名が空です")
+            labels.add(label)
+        else:
+            for token in parts[1:]:
+                if token.startswith("@"):
+                    ref = token[1:]
+                    if ref not in labels:
+                        raise ValueError(
+                            f"{path}:{lineno}: 未定義のラベル '{ref}' を参照")
+
         if indent > prev_indent:
-            print(f"{path}:{lineno}: 階層インデントが不正")
+            raise ValueError(f"{path}:{lineno}: 階層インデントが不正")
 
         prev_indent = indent
         last_command = command
