@@ -70,16 +70,22 @@ python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt  # installs PyYAML>=6.0, pydantic>=2.0, ruamel.yaml>=0.18, graphviz>=0.20
 
+# Quick install (once published to PyPI)
+pip install q2t-core
+
 # or install via the provided `pyproject.toml`
 # pip install .[test]
 
 python parse_fold_dsl.py
 
+# Generate an Obsidian Canvas file
+q2t-canvas docs/fold_dsl-sample.yaml
+
 # Export Markdown notes for Dataview
 python -m src.utils.dataview_exporter docs/fold_dsl-sample.yaml docs/dataview_sample
 ```
 
-Canvas へのエクスポート方法は [docs/canvas_generator.md](docs/canvas_generator.md) を参照してください。
+Canvas へのエクスポート方法や詳細オプションは [docs/canvas_generator.md](docs/canvas_generator.md) を参照してください。
 
 ### Running Tests
 
