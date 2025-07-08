@@ -1,8 +1,13 @@
 from pathlib import Path
 import yaml
 
+from src.models.fold_dsl import FoldDSL, Link, Meta, Section, Semantic
+from src.utils.dataview_exporter import (
+    _collect_linked_nodes,
+    _state_marker,
+    export_dataview_markdown,
+)
 from src.utils.dsl_parser import DSLParser
-from src.utils.dataview_exporter import export_dataview_markdown
 
 
 def test_export_dataview_markdown(tmp_path: Path) -> None:
@@ -22,16 +27,24 @@ def test_export_dataview_markdown(tmp_path: Path) -> None:
     assert data["id"] == "A-01"
     assert "state_marker" in data
 
-from src.models.fold_dsl import FoldDSL, Section, Link, Meta, Semantic
-from src.utils.dataview_exporter import _collect_linked_nodes, _state_marker
-
 
 def _simple_dsl() -> FoldDSL:
-    section = Section(id="root", name="Root", tension=1, children=[Section(id="child", name="Child")])
+    section = Section(
+        id="root",
+        name="Root",
+        tension=1,
+        children=[Section(id="child", name="Child")],
+    )
     links = [Link(source="root", target="child", type="rel", weight=0.5)]
     meta = Meta(version="0.1", created="2025-01-01", author="tester")
     semantic = Semantic(keywords=["k"], themes=["t"])
-    return FoldDSL(id="x", sections=[section], links=links, meta=meta, semantic=semantic)
+    return FoldDSL(
+        id="x",
+        sections=[section],
+        links=links,
+        meta=meta,
+        semantic=semantic,
+    )
 
 
 def test_collect_linked_nodes() -> None:
@@ -57,4 +70,3 @@ def test_state_marker_values() -> None:
     linked2 = _collect_linked_nodes(plain.links)
     child_marks = _state_marker(plain.sections[0].children[0], plain, linked2)
     assert child_marks == ["mu"]
-
