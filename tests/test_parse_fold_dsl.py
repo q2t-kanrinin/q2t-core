@@ -37,3 +37,4 @@ def test_dslparser_parses_zettel_metadata(tmp_path: Path) -> None:
     assert dsl.sections[0].id == "S-1"
     assert dsl.meta.author == "tester"
     assert dsl.meta.version == "0.1"
+    assert dsl.model_dump(by_alias=True)["section"][0]["id"] == "S-1"

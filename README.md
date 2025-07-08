@@ -21,7 +21,7 @@ q2t-core は、以下の3軸モデルに基づく構造分類・進化テンプ�
 - テンプレ進化を「テンション（進化圧）」として定量記録
 - Obsidian / Canvas / GitHubと連携可能
 - Zettel準拠の構造記述・履歴追跡・自動マッピング
-- Python / Graphvizベースで可視化可能
+ - Python / Graphvizベースで可視化可能（semanticタグをツールチップ表示）
 
 ---
 
@@ -68,12 +68,25 @@ git clone https://github.com/yourname/q2t-core.git
 cd q2t-core
 python -m venv venv
 source venv/bin/activate
-pip install -r requirements.txt  # installs PyYAML>=6.0, pydantic>=2.0, ruamel.yaml>=0.18
+pip install -r requirements.txt  # installs PyYAML>=6.0, pydantic>=2.0, ruamel.yaml>=0.18, graphviz>=0.20
 
 # or install via the provided `pyproject.toml`
 # pip install .[test]
 
 python parse_fold_dsl.py
+```
+
+### Running Tests
+
+Install the test dependencies and execute the suite:
+
+```bash
+pip install -r requirements.txt
+# optional extras
+pip install .[test]
+
+pytest tests/
+```
 🧭 今後の開発予定
 fold_dslパーサの完全Pydantic化
 

@@ -1,13 +1,7 @@
+"""Example script for parsing and displaying FoldDSL YAML files."""
+
 from src.utils.dsl_parser import DSLParser  # ✅ 外部化されたクラスを利用
-
-import yaml
 from src.models.fold_dsl import FoldDSL, Section
-
-
-def load_fold_dsl(path: str) -> dict:
-    """Legacy fallback: Load FoldDSL YAML as raw dict."""
-    with open(path, "r", encoding="utf-8") as f:
-        return yaml.safe_load(f)
 
 
 def print_section_tree(section: Section, level: int = 0):
