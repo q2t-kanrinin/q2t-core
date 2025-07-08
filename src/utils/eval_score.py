@@ -81,6 +81,19 @@ def compute_eval_scores(
 
 
 def sum_sections_tension(section: Section) -> int:
+    """Return the cumulative tension value of *section* and descendants.
+
+    Parameters
+    ----------
+    section : Section
+        Section from which to start the accumulation.
+
+    Returns
+    -------
+    int
+        Sum of all ``tension`` values in the subtree.
+    """
+
     total = section.tension or 0
     for child in section.children:
         total += sum_sections_tension(child)
