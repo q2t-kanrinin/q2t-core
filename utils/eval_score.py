@@ -72,7 +72,7 @@ def sum_sections_tension(section: Section) -> int:
 
 
 if __name__ == "__main__":
-    from src.utils.dsl_parser import DSLParser
+    from utils.dsl_parser import DSLParser
     yaml_file = "docs/fold_dsl-sample.yaml"
     parser = DSLParser(yaml_file)
     dsl = parser.parse()

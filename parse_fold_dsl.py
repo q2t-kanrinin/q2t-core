@@ -1,6 +1,6 @@
 """Example script for parsing and displaying FoldDSL YAML files."""
 
-from src.utils.dsl_parser import DSLParser  # ✅ 外部化されたクラスを利用
+from utils.dsl_parser import DSLParser  # ✅ 外部化されたクラスを利用
 
 import yaml
 from src.models.fold_dsl import FoldDSL, Section
