@@ -81,12 +81,28 @@ python parse_fold_dsl.py
 Install the test dependencies and execute the suite:
 
 ```bash
+# install development requirements
 pip install -r requirements.txt
+# or use the dev bundle which simply references `requirements.txt`
+pip install -r requirements-dev.txt
 # optional extras
 pip install .[test]
 
 pytest tests/
 ```
+
+## 🛠 Development Setup
+
+For local development you only need the packages listed in
+`requirements.txt` which include `ruamel.yaml`, `graphviz` and
+`pydantic`. Install them with:
+
+```bash
+pip install -r requirements.txt
+```
+
+The CI workflow also installs `requirements-dev.txt` so these packages are
+present before running `pytest`.
 🧭 今後の開発予定
 fold_dslパーサの完全Pydantic化
 
