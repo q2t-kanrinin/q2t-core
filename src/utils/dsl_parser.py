@@ -40,24 +40,24 @@ class DSLParser:
         meta_from_comments = self._extract_comment_metadata(data)
         self.meta_tags = meta_from_comments.get("tags", [])
 
-        if "section" in data:
-            data["sections"] = [data.pop("section")]
+if "section" in data:
+    data["sections"] = [data.pop("section")]
 
-        raw_sections = data.get("sections", [])
-        sections = [self._parse_section(s) for s in raw_sections]
-        data["sections"] = sections
+raw_sections = data.get("sections", [])
+sections = [self._parse_section(s) for s in raw_sections]
+data["sections"] = sections
 
-        for link in data.get("links", []):
-            if "weight" not in link:
-                link["weight"] = 1.0
+for link in data.get("links", []):
+    if "weight" not in link:
+        link["weight"] = 1.0
 
-        if "id" not in data and sections:
-            data["id"] = sections[0].id
+if "id" not in data and sections:
+    data["id"] = sections[0].id
 
-        dsl = FoldDSL.model_validate(data)
-        dsl.title = meta_from_comments.get("title")
-        dsl.tags = meta_from_comments.get("tags", [])
-        return dsl
+dsl = FoldDSL.model_validate(data)
+dsl.title = meta_from_comments.get("title")
+dsl.tags = meta_from_comments.get("tags", [])
+return dsl
 
     def _extract_comment_metadata(self, data: CommentedMap) -> Dict[str, Any]:
         result: Dict[str, Any] = {}
