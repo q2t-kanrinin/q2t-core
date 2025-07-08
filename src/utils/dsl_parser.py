@@ -1,3 +1,5 @@
+"""Utility for parsing FoldDSL YAML files with comment metadata."""
+
 from __future__ import annotations
 from pathlib import Path
 from typing import Any, Dict, List
@@ -23,7 +25,12 @@ class DSLParser:
             raise ValueError("path is required")
         self.path = target
         with open(target, "r", encoding="utf-8") as f:
-            data: CommentedMap = self.yaml.load(f)
+            raw = f.read()
+
+        if "\u2705" in raw:  # cut off non-YAML notes starting with check mark
+            raw = raw.split("\u2705", 1)[0]
+
+        data: CommentedMap = self.yaml.load(raw)
 
         meta_from_comments = self._extract_comment_metadata(data)
         self.meta_tags = meta_from_comments.get("tags", [])
@@ -68,3 +75,9 @@ class DSLParser:
         )
 
 __all__ = ["DSLParser"]
+
+# 該当部分（パーサ内部）
+if isinstance(item, dict) and "@note" in item:
+    note_text = item["@note"]
+    note = NoteNode(text=note_text)
+    current_section.notes.append(note)
