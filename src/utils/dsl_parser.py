@@ -36,18 +36,20 @@ class DSLParser:
         meta_from_comments = self._extract_comment_metadata(data)
         self.meta_tags = meta_from_comments.get("tags", [])
 
-        if "section" in data:
-            data["sections"] = [data.pop("section")]
+        section = self._parse_section(data["section"])
+        links = [Link(**link) for link in data.get("links", [])]
+        meta = Meta(**data.get("meta", {}))
+        semantic = Semantic(**data.get("semantic", {}))
 
-        if "id" not in data and data.get("sections"):
-            root_section = data["sections"][0]
-            if isinstance(root_section, dict) and "id" in root_section:
-                data["id"] = root_section["id"]
-
-        dsl = FoldDSL.model_validate(data)
-        dsl.title = meta_from_comments.get("title")
-        dsl.tags = meta_from_comments.get("tags", [])
-        return dsl
+        return FoldDSL(
+            id=data.get("id", section.id),
+            title=meta_from_comments.get("title"),
+            tags=meta_from_comments.get("tags", []),
+            sections=[section],
+            links=links,
+            meta=meta,
+            semantic=semantic,
+        )
 
     def _extract_comment_metadata(self, data: CommentedMap) -> Dict[str, Any]:
         result: Dict[str, Any] = {}
@@ -89,9 +91,3 @@ class DSLParser:
         )
 
 __all__ = ["DSLParser"]
-
-# 該当部分（パーサ内部）
-if isinstance(item, dict) and "@note" in item:
-    note_text = item["@note"]
-    note = NoteNode(text=note_text)
-    current_section.notes.append(note)
