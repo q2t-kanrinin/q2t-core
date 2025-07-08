@@ -14,3 +14,4 @@
 - [fold_dsl-sample.yaml](fold_dsl-sample.yaml) : DSL のサンプル記述
 - [glossary.md](glossary.md) : 用語集
 - [dataview_exporter.md](dataview_exporter.md) : Dataview 用 Markdown 生成方法
+- [canvas_generator.md](canvas_generator.md) : Canvas ファイル生成方法
