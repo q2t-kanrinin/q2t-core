@@ -1,0 +1,42 @@
+# テンプレート評価テンション指標
+
+# 各axisはテンプレ進化を促す圧力＝テンションの観点
+# weightは軸間・項目間の相対重要度（1.0合計でなくても可）
+
+
+title: 基本テンプレ評価
+
+axes:
+  - axis: 構造性
+    weight: 1.0
+    items:
+      - name: 階層深度
+        key: depth
+        description: sectionの最大深度
+        weight: 0.5
+
+      - name: 分岐数
+        key: breadth
+        description: 子の平均数（構造の拡がり）
+        weight: 0.5
+
+  - axis: 意味密度
+    weight: 1.0
+    items:
+      - name: semanticキーワード数
+        key: keywords
+        description: FoldDSL.semantic.keywords の合計数
+        weight: 0.6
+
+      - name: themes数
+        key: themes
+        description: FoldDSL.semantic.themes の合計数
+        weight: 0.4
+
+  - axis: テンション分布
+    weight: 1.0
+    items:
+      - name: 総テンション量
+        key: tension_sum
+        description: section全体のtension合計値
+        weight: 1.0
