@@ -1,3 +1,5 @@
+"""Validators for FoldDSL link structures and text checks."""
+
 from __future__ import annotations
 
 from typing import List, Set
