@@ -1,8 +1,8 @@
 import json
 from pathlib import Path
 
-from src.utils.dsl_parser import DSLParser
-from src.utils.canvas_generator import generate_canvas_from_fold_dsl
+from utils.dsl_parser import DSLParser
+from utils.canvas_generator import generate_canvas_from_fold_dsl
 
 
 def test_generate_canvas_from_sample_yaml():

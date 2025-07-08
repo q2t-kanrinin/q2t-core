@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from src.utils.dsl_parser import DSLParser
-from src.utils.eval_score import load_eval_template, compute_eval_scores
+from utils.dsl_parser import DSLParser
+from utils.eval_score import load_eval_template, compute_eval_scores
 
 
 def test_compute_eval_scores(tmp_path: Path) -> None:

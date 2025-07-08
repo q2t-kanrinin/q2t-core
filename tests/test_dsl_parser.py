@@ -1,6 +1,6 @@
 from pathlib import Path
 from src.models.fold_dsl import FoldDSL
-from src.utils.dsl_parser import DSLParser
+from utils.dsl_parser import DSLParser
 
 
 def test_dslparser_parses_metadata(tmp_path: Path) -> None:
