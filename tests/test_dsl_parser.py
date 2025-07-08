@@ -38,7 +38,7 @@ section:
   children:
     - id: child1
       name: Child1
-    - @note: sample note
+    - "@note": sample note
 links: []
 meta:
   version: "0.1"
