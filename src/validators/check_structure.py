@@ -26,6 +26,7 @@ def validate_links(dsl: FoldDSL, yaml_path: str) -> None:
         data = yaml.load(f)
 
     links = data.get("links", [])
+    seen: Set[tuple[str, str, str]] = set()
     for idx, link in enumerate(links):
         if not isinstance(link, CommentedMap):
             line = getattr(link, "lc", None)
@@ -56,6 +57,12 @@ def validate_links(dsl: FoldDSL, yaml_path: str) -> None:
         if not 0.0 <= float(weight) <= 1.0:
             line = link.lc.value("weight")[0] + 1
             raise ValueError(f"'weight' out of range at line {line}")
+
+        link_key = (link["source"], link["target"], link["type"])
+        if link_key in seen:
+            line = link.lc.line + 1 if hasattr(link, "lc") else "unknown"
+            raise ValueError(f"Duplicate link detected at line {line}")
+        seen.add(link_key)
 
 
 ALLOWED_COMMANDS = {
