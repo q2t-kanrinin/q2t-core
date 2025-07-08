@@ -37,7 +37,6 @@ def _state_marker(section: Section, dsl: FoldDSL, linked: set[str]) -> List[str]
 
 def generate_canvas_from_fold_dsl(src: FoldDSL | str | Path) -> Dict[str, Any]:
     """Convert a :class:`FoldDSL` instance to Obsidian Canvas JSON structure."""
-
     if isinstance(src, (str, Path)):
         parser = DSLParser(str(src))
         dsl = parser.parse()
@@ -97,4 +96,9 @@ def generate_canvas_from_fold_dsl(src: FoldDSL | str | Path) -> Dict[str, Any]:
     return {"nodes": nodes, "edges": edges}
 
 
-__all__ = ["generate_canvas_from_fold_dsl"]
+def generate_canvas(fold: FoldDSL) -> Dict[str, Any]:
+    """Backward-compatible wrapper for :func:`generate_canvas_from_fold_dsl`."""
+    return generate_canvas_from_fold_dsl(fold)
+
+
+__all__ = ["generate_canvas_from_fold_dsl", "generate_canvas"]
