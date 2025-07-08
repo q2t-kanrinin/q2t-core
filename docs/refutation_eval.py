@@ -1,3 +1,11 @@
+"""Utility script for evaluating a ``FoldDSL`` against a scoring config.
+
+This module exposes :class:`FoldEvaluator` which loads a FoldDSL YAML file
+and an evaluation configuration to compute various scores.  It was
+originally saved with a ``.yaml`` extension but actually contains Python
+code; the file has been renamed to better reflect its contents.
+"""
+
 import math
 from src.models.fold_dsl import FoldDSL
 from src.utils.dsl_parser import DSLParser
@@ -71,7 +79,7 @@ if __name__ == "__main__":
     from pprint import pprint
 
     fold_path = "docs/fold_dsl-sample.yaml"
-    config_path = "docs/refutation_eval.yaml"
+    config_path = "docs/refutation_eval.py"
 
     evaluator = FoldEvaluator(fold_path, config_path)
     scores = evaluator.compute()
