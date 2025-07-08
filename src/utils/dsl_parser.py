@@ -77,4 +77,38 @@ class DSLParser:
 
 
 
-__all__ = ["DSLParser"]
+__all__ = ["DSLParser", "main"]
+
+
+def main() -> None:
+    """CLI entry point for parsing FoldDSL YAML files."""
+    import argparse
+    import json
+
+    parser = argparse.ArgumentParser(description="Parse FoldDSL YAML and output JSON")
+    parser.add_argument("source", help="Path to FoldDSL YAML file")
+    parser.add_argument(
+        "dest",
+        nargs="?",
+        help="Destination directory to store JSON output (prints to stdout if omitted)",
+    )
+
+    args = parser.parse_args()
+
+    dsl_parser = DSLParser(args.source)
+    dsl = dsl_parser.parse()
+
+    json_text = dsl.model_dump_json(by_alias=True, indent=2)
+
+    if args.dest:
+        out_dir = Path(args.dest)
+        out_dir.mkdir(parents=True, exist_ok=True)
+        out_file = out_dir / (Path(args.source).stem + ".json")
+        out_file.write_text(json_text, encoding="utf-8")
+        print(f"Wrote {out_file}")
+    else:
+        print(json_text)
+
+
+if __name__ == "__main__":  # pragma: no cover - CLI usage
+    main()

@@ -83,12 +83,20 @@ def export_dataview_markdown(src: FoldDSL | str | Path, out_dir: str | Path) -> 
     return exported
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """CLI entry point for exporting Markdown notes for Dataview."""
     import argparse
 
-    parser = argparse.ArgumentParser(description="Export FoldDSL sections to Markdown for Obsidian Dataview")
+    parser = argparse.ArgumentParser(
+        description="Export FoldDSL sections to Markdown for Obsidian Dataview"
+    )
     parser.add_argument("source", help="Path to FoldDSL YAML file")
-    parser.add_argument("out_dir", nargs="?", default="dataview_export", help="Output directory")
+    parser.add_argument(
+        "out_dir",
+        nargs="?",
+        default="dataview_export",
+        help="Output directory",
+    )
 
     args = parser.parse_args()
     dsl_parser = DSLParser(args.source)
@@ -96,4 +104,9 @@ if __name__ == "__main__":
     files = export_dataview_markdown(dsl, args.out_dir)
     print(f"Exported {len(files)} files to {args.out_dir}")
 
-__all__ = ["export_dataview_markdown"]
+
+__all__ = ["export_dataview_markdown", "main"]
+
+
+if __name__ == "__main__":  # pragma: no cover - CLI usage
+    main()
