@@ -14,6 +14,22 @@ def load_eval_template(path: str = "docs/tension_eval.yaml") -> Dict[str, Any]:
 def compute_eval_scores(
     dsl: FoldDSL, eval_template: Dict[str, Any], yaml_path: Optional[str] = None
 ) -> Dict[str, Any]:
+    """Calculate axis and total scores for a FoldDSL instance.
+
+    Parameters
+    ----------
+    dsl : FoldDSL
+        Parsed FoldDSL structure to evaluate.
+    eval_template : Dict[str, Any]
+        Mapping defining axes and weight settings.
+    yaml_path : Optional[str]
+        Source YAML path for optional link validation.
+
+    Returns
+    -------
+    Dict[str, Any]
+        Scores keyed by axis name with ``total_score`` included.
+    """
     if yaml_path:
         validate_links(dsl, yaml_path)
     def count_depth(section: Section, level: int = 1) -> int:
