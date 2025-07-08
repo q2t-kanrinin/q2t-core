@@ -1,8 +1,14 @@
 """Data models representing the FoldDSL schema."""
 
 from __future__ import annotations
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, model_validator, ConfigDict
 from typing import List, Optional
+
+
+class NoteNode(BaseModel):
+    """Non-structural annotation node."""
+
+    text: str
 
 class Section(BaseModel):
     id: str
@@ -10,6 +16,7 @@ class Section(BaseModel):
     description: Optional[str] = None
     tension: int = Field(0, ge=0, le=3)
     children: List[Section] = Field(default_factory=list)
+    notes: List[NoteNode] = Field(default_factory=list)
 
 class Link(BaseModel):
     source: str
@@ -31,10 +38,12 @@ class FoldDSL(BaseModel):
     id: str
     title: Optional[str] = None
     tags: List[str] = Field(default_factory=list)
-    sections: List[Section]
+    sections: List[Section] = Field(alias="section")
     links: List[Link]
     meta: Meta
     semantic: Semantic
+
+    model_config = ConfigDict(populate_by_name=True)
 
     @model_validator(mode="before")
     @classmethod
@@ -66,4 +75,4 @@ def _collect_ids(section: Section) -> List[str]:
         ids.extend(_collect_ids(child))
     return ids
 
-__all__ = ["Section", "Link", "Meta", "Semantic", "FoldDSL"]
+__all__ = ["Section", "Link", "Meta", "Semantic", "FoldDSL", "NoteNode"]
