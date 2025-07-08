@@ -40,16 +40,6 @@ def test_generate_canvas_minimal(tmp_path):
     assert len(canvas["nodes"]) == 2
     assert len(canvas["edges"]) == 1
 
-<<<<<<< HEAD
-    node_ids = [n["id"] for n in canvas["nodes"]]
-    assert "root" in node_ids
-    assert "child" in node_ids
-
-    edge = canvas["edges"][0]
-    assert edge["source"] == "root"
-    assert edge["target"] == "child"
-    assert edge["type"] == "bridge"
-=======
     allowed_colors = {"#cccccc", "#3399ff", "#ffaa33", "#ff3333"}
     for node in canvas["nodes"]:
         assert {"id", "label", "x", "y", "color"}.issubset(node)
@@ -61,7 +51,6 @@ def test_generate_canvas_minimal(tmp_path):
 
     for edge in canvas["edges"]:
         assert {"id", "source", "target", "type", "weight"}.issubset(edge)
->>>>>>> 0ad50b7fc903bd9873e225c9cff5ef9749c5399c
 
     # オプション：Canvas構造を一時ファイルに保存して中身を確認
     output_path = tmp_path / "out.canvas"
