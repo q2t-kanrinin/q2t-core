@@ -74,6 +74,19 @@ pip install -r requirements.txt  # installs PyYAML>=6.0, pydantic>=2.0, ruamel.y
 # pip install .[test]
 
 python parse_fold_dsl.py
+```
+
+### Running Tests
+
+Install the test dependencies and execute the suite:
+
+```bash
+pip install -r requirements.txt
+# optional extras
+pip install .[test]
+
+pytest tests/
+```
 🧭 今後の開発予定
 fold_dslパーサの完全Pydantic化
 
