@@ -17,6 +17,19 @@ TENSION_COLOR_MAP: Dict[int, str] = {
 
 
 def _collect_linked_nodes(links: Sequence[Link]) -> set[str]:
+    """Gather node identifiers referenced by *links*.
+
+    Parameters
+    ----------
+    links : Sequence[Link]
+        Link objects from which to collect ``source`` and ``target`` IDs.
+
+    Returns
+    -------
+    set[str]
+        Unique node IDs appearing in the link list.
+    """
+
     nodes: set[str] = set()
     for l in links:
         nodes.add(l.source)
@@ -25,6 +38,23 @@ def _collect_linked_nodes(links: Sequence[Link]) -> set[str]:
 
 
 def _state_marker(section: Section, dsl: FoldDSL, linked: set[str]) -> List[str]:
+    """Return state marker labels for a section on the canvas.
+
+    Parameters
+    ----------
+    section : Section
+        Section to evaluate.
+    dsl : FoldDSL
+        FoldDSL instance containing semantic information.
+    linked : set[str]
+        Node IDs that participate in links.
+
+    Returns
+    -------
+    List[str]
+        Marker tokens ``phi``, ``psi`` and/or ``mu``.
+    """
+
     marks: List[str] = []
     if dsl.semantic and dsl.semantic.keywords:
         marks.append("phi")
