@@ -89,9 +89,3 @@ class DSLParser:
         )
 
 __all__ = ["DSLParser"]
-
-# 該当部分（パーサ内部）
-if isinstance(item, dict) and "@note" in item:
-    note_text = item["@note"]
-    note = NoteNode(text=note_text)
-    current_section.notes.append(note)
