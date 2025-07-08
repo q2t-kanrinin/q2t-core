@@ -1,3 +1,5 @@
+"""Example script for parsing and displaying FoldDSL YAML files."""
+
 from src.utils.dsl_parser import DSLParser  # ✅ 外部化されたクラスを利用
 
 import yaml

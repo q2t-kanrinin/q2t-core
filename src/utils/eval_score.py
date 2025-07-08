@@ -1,3 +1,5 @@
+"""Compute evaluation scores from a :class:`FoldDSL` instance."""
+
 import yaml
 from typing import Dict, Any, Optional
 from src.models.fold_dsl import FoldDSL, Section

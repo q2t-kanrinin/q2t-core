@@ -1,3 +1,5 @@
+"""Data class describing evaluation axis metrics for Zettel templates."""
+
 from dataclasses import dataclass
 
 
