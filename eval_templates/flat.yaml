@@ -1,0 +1,25 @@
+# alternative evaluation template
+
+title: フラットテンプレ評価
+axes:
+  - axis: 構造性
+    weight: 0.5
+    items:
+      - name: 階層深度
+        key: depth
+        weight: 1.0
+  - axis: 意味密度
+    weight: 1.5
+    items:
+      - name: semanticキーワード数
+        key: keywords
+        weight: 1.0
+      - name: themes数
+        key: themes
+        weight: 1.0
+  - axis: テンション分布
+    weight: 0.5
+    items:
+      - name: 総テンション量
+        key: tension_sum
+        weight: 1.0

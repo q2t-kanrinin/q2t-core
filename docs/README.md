@@ -13,3 +13,7 @@
 - [tension.md](tension.md) : テンション・進化管理の概要
 - [fold_dsl-sample.yaml](fold_dsl-sample.yaml) : DSL のサンプル記述
 - [glossary.md](glossary.md) : 用語集
+- `../eval_templates/` : 評価テンプレート (fold_type ごとに配置)
+
+`compute_eval_scores()` では `fold_type` を指定することで
+対応する評価テンプレートを自動読み込みできます。

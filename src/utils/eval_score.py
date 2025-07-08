@@ -1,18 +1,32 @@
 """Compute evaluation scores from a :class:`FoldDSL` instance."""
 
 import yaml
+from pathlib import Path
 from typing import Dict, Any, Optional
 from src.models.fold_dsl import FoldDSL, Section
 from src.validators.check_structure import validate_links
 
 
-def load_eval_template(path: str = "docs/tension_eval.yaml") -> Dict[str, Any]:
-    with open(path, "r", encoding="utf-8") as f:
+def load_eval_template(
+    fold_type: str = "default", path: Optional[str] = None
+) -> Dict[str, Any]:
+    """Load evaluation template either from *path* or by fold_type."""
+    if path:
+        target = Path(path)
+    else:
+        target = Path("eval_templates") / f"{fold_type}.yaml"
+        if not target.exists():
+            target = Path("eval_templates") / "default.yaml"
+
+    with open(target, "r", encoding="utf-8") as f:
         return yaml.safe_load(f)
 
 
 def compute_eval_scores(
-    dsl: FoldDSL, eval_template: Dict[str, Any], yaml_path: Optional[str] = None
+    dsl: FoldDSL,
+    eval_template: Optional[Dict[str, Any]] = None,
+    yaml_path: Optional[str] = None,
+    fold_type: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Calculate axis and total scores for a FoldDSL instance.
 
@@ -20,10 +34,13 @@ def compute_eval_scores(
     ----------
     dsl : FoldDSL
         Parsed FoldDSL structure to evaluate.
-    eval_template : Dict[str, Any]
-        Mapping defining axes and weight settings.
+    eval_template : Optional[Dict[str, Any]]
+        Explicit template mapping. If not provided, load from :func:`load_eval_template`.
     yaml_path : Optional[str]
         Source YAML path for optional link validation.
+    fold_type : Optional[str]
+        Template name used when loading automatically. If omitted, tries
+        ``dsl.meta.fold_type`` or falls back to ``"default"``.
 
     Returns
     -------
@@ -32,6 +49,18 @@ def compute_eval_scores(
     """
     if yaml_path:
         validate_links(dsl, yaml_path)
+
+    if eval_template is None:
+        if fold_type is None:
+            fold_type = getattr(dsl.meta, "fold_type", None)
+            if fold_type is None:
+                for tag in getattr(dsl.meta, "tags", []):
+                    if tag.startswith("type:"):
+                        fold_type = tag.split(":", 1)[1]
+                        break
+        fold_type = fold_type or "default"
+        eval_template = load_eval_template(fold_type)
+
     def count_depth(section: Section, level: int = 1) -> int:
         if not section.children:
             return level
@@ -51,7 +80,9 @@ def compute_eval_scores(
     depth = count_depth(section_root)
     breadth = count_breadth(section_root) / max(total_nodes - 1, 1)
 
-    keywords = len(dsl.semantic.keywords) if dsl.semantic and dsl.semantic.keywords else 0
+    keywords = (
+        len(dsl.semantic.keywords) if dsl.semantic and dsl.semantic.keywords else 0
+    )
     themes = len(dsl.semantic.themes) if dsl.semantic and dsl.semantic.themes else 0
     tension_sum = sum_sections_tension(section_root)
 
@@ -89,11 +120,11 @@ def sum_sections_tension(section: Section) -> int:
 
 if __name__ == "__main__":
     from src.utils.dsl_parser import DSLParser
+
     yaml_file = "docs/fold_dsl-sample.yaml"
     parser = DSLParser(yaml_file)
     dsl = parser.parse()
-    template = load_eval_template()
-    scores = compute_eval_scores(dsl, template, yaml_path=yaml_file)
+    scores = compute_eval_scores(dsl, yaml_path=yaml_file)
     print("\n=== 評価スコア ===")
     for axis, score in scores.items():
         print(f"{axis}: {score:.2f}")
