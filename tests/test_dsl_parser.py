@@ -30,3 +30,5 @@ semantic:
     assert parser.meta_tags == ["foo", "bar"]
     assert dsl.sections[0].id == "root"
     assert dsl.meta.author == "tester"
+    dumped = dsl.model_dump(by_alias=True)
+    assert "section" in dumped and dumped["section"][0]["id"] == "root"

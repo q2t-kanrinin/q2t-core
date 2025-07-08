@@ -1,7 +1,7 @@
 """Data models representing the FoldDSL schema."""
 
 from __future__ import annotations
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, model_validator, ConfigDict
 from typing import List, Optional
 
 class Section(BaseModel):
@@ -31,10 +31,12 @@ class FoldDSL(BaseModel):
     id: str
     title: Optional[str] = None
     tags: List[str] = Field(default_factory=list)
-    sections: List[Section]
+    sections: List[Section] = Field(alias="section")
     links: List[Link]
     meta: Meta
     semantic: Semantic
+
+    model_config = ConfigDict(populate_by_name=True)
 
     @model_validator(mode="before")
     @classmethod

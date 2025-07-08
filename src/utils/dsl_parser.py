@@ -7,7 +7,7 @@ from typing import Any, Dict, List
 from ruamel.yaml import YAML
 from ruamel.yaml.comments import CommentedMap
 
-from src.models.fold_dsl import FoldDSL, Section, Link, Meta, Semantic
+from src.models.fold_dsl import FoldDSL
 
 
 class DSLParser:
@@ -34,20 +34,19 @@ class DSLParser:
 
         meta_from_comments = self._extract_comment_metadata(data)
         self.meta_tags = meta_from_comments.get("tags", [])
-        section = self._parse_section(data["section"])
-        links = [Link(**link) for link in data.get("links", [])]
-        meta = Meta(**data.get("meta", {}))
-        semantic = Semantic(**data.get("semantic", {}))
 
-        return FoldDSL(
-            id=data.get("id", section.id),
-            title=meta_from_comments.get("title"),
-            tags=meta_from_comments.get("tags", []),
-            sections=[section],
-            links=links,
-            meta=meta,
-            semantic=semantic,
-        )
+        if "section" in data:
+            data["sections"] = [data.pop("section")]
+
+        if "id" not in data and data.get("sections"):
+            root_section = data["sections"][0]
+            if isinstance(root_section, dict) and "id" in root_section:
+                data["id"] = root_section["id"]
+
+        dsl = FoldDSL.model_validate(data)
+        dsl.title = meta_from_comments.get("title")
+        dsl.tags = meta_from_comments.get("tags", [])
+        return dsl
 
     def _extract_comment_metadata(self, data: CommentedMap) -> Dict[str, Any]:
         result: Dict[str, Any] = {}
@@ -63,15 +62,5 @@ class DSLParser:
                         tag_str = tag_str[1:-1]
                     result["tags"] = [t.strip() for t in tag_str.split(',') if t.strip()]
         return result
-
-    def _parse_section(self, data: Dict[str, Any]) -> Section:
-        children = [self._parse_section(child) for child in data.get("children", [])]
-        return Section(
-            id=data["id"],
-            name=data["name"],
-            description=data.get("description"),
-            tension=data.get("tension", 0),
-            children=children,
-        )
 
 __all__ = ["DSLParser"]
