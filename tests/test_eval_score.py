@@ -1,7 +1,11 @@
 from pathlib import Path
 
 from src.utils.dsl_parser import DSLParser
-from src.utils.eval_score import load_eval_template, compute_eval_scores
+from src.utils.eval_score import (
+    load_eval_template,
+    compute_eval_scores,
+    main as eval_main,
+)
 
 
 def test_compute_eval_scores(tmp_path: Path) -> None:
@@ -46,3 +50,10 @@ def test_compute_eval_scores_values() -> None:
 def test_sum_sections_tension() -> None:
     root = Section(id="root", name="Root", tension=2, children=[Section(id="child", name="Child", tension=1)])
     assert sum_sections_tension(root) == 3
+
+
+def test_eval_score_main(capsys) -> None:
+    eval_main()
+    captured = capsys.readouterr().out
+    assert "=== 評価スコア ===" in captured
+    assert "total_score" in captured
