@@ -87,8 +87,10 @@ def sum_sections_tension(section: Section) -> int:
     return total
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """CLI entry point for computing evaluation scores."""
     from src.utils.dsl_parser import DSLParser
+
     yaml_file = "docs/fold_dsl-sample.yaml"
     parser = DSLParser(yaml_file)
     dsl = parser.parse()
@@ -97,3 +99,15 @@ if __name__ == "__main__":
     print("\n=== 評価スコア ===")
     for axis, score in scores.items():
         print(f"{axis}: {score:.2f}")
+
+
+__all__ = [
+    "load_eval_template",
+    "compute_eval_scores",
+    "sum_sections_tension",
+    "main",
+]
+
+
+if __name__ == "__main__":  # pragma: no cover - CLI usage
+    main()

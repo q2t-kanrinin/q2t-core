@@ -24,3 +24,4 @@ test = ["pytest>=7.0"]
 q2t-parse = "src.utils.dsl_parser:main"
 q2t-canvas = "src.utils.canvas_generator:main"
 q2t-dataview = "src.utils.dataview_exporter:main"
+q2t-eval = "src.utils.eval_score:main"
