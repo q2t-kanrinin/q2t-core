@@ -101,4 +101,35 @@ def generate_canvas(fold: FoldDSL) -> Dict[str, Any]:
     return generate_canvas_from_fold_dsl(fold)
 
 
-__all__ = ["generate_canvas_from_fold_dsl", "generate_canvas"]
+__all__ = ["generate_canvas_from_fold_dsl", "generate_canvas", "main"]
+
+
+def main() -> None:
+    """CLI entry point to generate Obsidian Canvas from FoldDSL."""
+    import argparse
+    import json
+
+    parser = argparse.ArgumentParser(description="Generate Obsidian Canvas from FoldDSL YAML")
+    parser.add_argument("source", help="Path to FoldDSL YAML file")
+    parser.add_argument(
+        "out_dir",
+        nargs="?",
+        default=".",
+        help="Output directory for canvas file",
+    )
+
+    args = parser.parse_args()
+
+    dsl = DSLParser(args.source).parse()
+    canvas = generate_canvas_from_fold_dsl(dsl)
+
+    out_path = Path(args.out_dir)
+    out_path.mkdir(parents=True, exist_ok=True)
+    file = out_path / "fold_canvas.canvas"
+    with open(file, "w", encoding="utf-8") as f:
+        json.dump(canvas, f, ensure_ascii=False, indent=2)
+    print(f"Wrote {file}")
+
+
+if __name__ == "__main__":  # pragma: no cover - CLI usage
+    main()

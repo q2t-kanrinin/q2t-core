@@ -71,12 +71,14 @@ source venv/bin/activate
 pip install -r requirements.txt  # installs PyYAML>=6.0, pydantic>=2.0, ruamel.yaml>=0.18, graphviz>=0.20
 
 # or install via the provided `pyproject.toml`
-# pip install .[test]
+pip install .
 
-python parse_fold_dsl.py
+# Parse a DSL file and output JSON to stdout
+q2t-parse docs/fold_dsl-sample.yaml
 
-# Export Markdown notes for Dataview
-python -m src.utils.dataview_exporter docs/fold_dsl-sample.yaml docs/dataview_sample
+# Generate Canvas or Dataview notes
+q2t-canvas docs/fold_dsl-sample.yaml canvas_output
+q2t-dataview docs/fold_dsl-sample.yaml dataview_output
 ```
 
 Canvas へのエクスポート方法は [docs/canvas_generator.md](docs/canvas_generator.md) を参照してください。
