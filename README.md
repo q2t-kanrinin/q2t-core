@@ -91,7 +91,7 @@ pip install .[test]
 pytest tests/
 ```
 🧭 今後の開発予定
-fold_dslパーサの完全Pydantic化
+fold_dslパーサの完全Pydantic化（完了）
 
 Obsidian Canvasへの構造エクスポート
 

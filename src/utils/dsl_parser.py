@@ -9,7 +9,7 @@ import re
 from ruamel.yaml import YAML
 from ruamel.yaml.comments import CommentedMap
 
-from src.models.fold_dsl import FoldDSL, Section, NoteNode
+from src.models.fold_dsl import FoldDSL
 
 
 class DSLParser:
@@ -44,15 +44,16 @@ class DSLParser:
             data["sections"] = [data.pop("section")]
 
         raw_sections = data.get("sections", [])
-        sections = [self._parse_section(s) for s in raw_sections]
-        data["sections"] = sections
+        data["sections"] = raw_sections
 
         for link in data.get("links", []):
             if "weight" not in link:
                 link["weight"] = 1.0
 
-        if "id" not in data and sections:
-            data["id"] = sections[0].id
+        if "id" not in data and raw_sections:
+            first = raw_sections[0]
+            if isinstance(first, dict) and "id" in first:
+                data["id"] = first["id"]
 
         dsl = FoldDSL.model_validate(data)
         dsl.title = meta_from_comments.get("title")
@@ -74,27 +75,6 @@ class DSLParser:
                     result["tags"] = [t.strip() for t in tag_str.split(',') if t.strip()]
         return result
 
-    def _parse_section(self, data: Dict[str, Any]) -> Section:
-        raw_children = data.get("children", [])
-        children: List[Section] = []
-        notes: List[NoteNode] = []
 
-        for child in raw_children:
-            if isinstance(child, dict) and "@note" in child:
-                notes.append(NoteNode(text=str(child["@note"])))
-            else:
-                children.append(self._parse_section(child))
-
-        if "@note" in data:
-            notes.append(NoteNode(text=str(data["@note"])))
-
-        return Section(
-            id=data["id"],
-            name=data["name"],
-            description=data.get("description"),
-            tension=data.get("tension", 0),
-            children=children,
-            notes=notes,
-        )
 
 __all__ = ["DSLParser"]
