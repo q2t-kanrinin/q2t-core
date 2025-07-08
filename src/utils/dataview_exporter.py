@@ -12,9 +12,9 @@ from .dsl_parser import DSLParser
 
 def _collect_linked_nodes(links: Sequence[Link]) -> set[str]:
     nodes: set[str] = set()
-    for l in links:
-        nodes.add(l.source)
-        nodes.add(l.target)
+    for link in links:
+        nodes.add(link.source)
+        nodes.add(link.target)
     return nodes
 
 
