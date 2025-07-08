@@ -7,6 +7,7 @@ from .eval_utils import load_eval_config
 from .dataview_exporter import export_dataview_markdown
 from src.validators.check_structure import validate_links
 from .tension_tracker import TensionTracker
+from .tension_analyzer import TensionAnalyzer
 
 __all__ = [
     "DSLParser",
@@ -18,4 +19,5 @@ __all__ = [
     "validate_links",
     "export_dataview_markdown",
     "TensionTracker",
+    "TensionAnalyzer",
 ]

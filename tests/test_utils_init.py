@@ -5,6 +5,8 @@ from src.utils import (
     compute_eval_scores,
     validate_links,
     export_dataview_markdown,
+    TensionTracker,
+    TensionAnalyzer,
 )
 
 
@@ -15,3 +17,5 @@ def test_utils_init_exports():
     assert callable(compute_eval_scores)
     assert callable(validate_links)
     assert callable(export_dataview_markdown)
+    assert callable(TensionTracker)
+    assert callable(TensionAnalyzer)
