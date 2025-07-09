@@ -70,11 +70,23 @@ python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt  # installs PyYAML>=6.0, pydantic>=2.0, ruamel.yaml>=0.18, graphviz>=0.20
 
-# or install via the provided `pyproject.toml`
-# pip install .[test]
+# Quick install (once published to PyPI)
+pip install q2t-core
 
-python parse_fold_dsl.py
+# or install via the provided `pyproject.toml`
+pip install .
+
+# Parse a DSL file and output JSON to stdout
+q2t-parse docs/fold_dsl-sample.yaml
+
+# Export Markdown notes for Dataview
+python -m src.utils.dataview_exporter docs/fold_dsl-sample.yaml docs/dataview_sample
+# Generate an Obsidian Canvas file
+q2t-canvas docs/fold_dsl-sample.yaml canvas_output
+q2t-dataview docs/fold_dsl-sample.yaml dataview_output
 ```
+
+Canvas へのエクスポート方法や詳細オプションは [docs/canvas_generator.md](docs/canvas_generator.md) を参照してください。
 
 ### Running Tests
 
@@ -87,16 +99,15 @@ pip install .[test]
 
 pytest tests/
 ```
-🧭 今後の開発予定
-fold_dslパーサの完全Pydantic化
+## 🧭 今後の開発予定
+- fold_dslパーサの完全Pydantic化
+- テンション可視化ダッシュボード
+- テンプレ進化のバージョン履歴管理
+- AST構造差分＋テンション流可視化
 
-Obsidian Canvasへの構造エクスポート
-
-テンション可視化ダッシュボード
-
-テンプレ進化のバージョン履歴管理
-
-AST構造差分＋テンション流可視化
+### 完成済み
+- Obsidian Canvasへの構造エクスポート
+- Dataview連携用Markdown出力
 
 📜 ライセンスと規範
 ライセンス：MIT

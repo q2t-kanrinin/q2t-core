@@ -38,7 +38,7 @@ section:
   children:
     - id: child1
       name: Child1
-    - @note: sample note
+    - "@note": sample note
 links: []
 meta:
   version: "0.1"
@@ -55,6 +55,8 @@ semantic:
     dsl = parser.parse()
 
     root_section = dsl.sections[0]
+    assert len(root_section.children) == 1
+    assert root_section.children[0].id == "child1"
     assert len(root_section.notes) == 1
     assert root_section.notes[0].text == "sample note"
 

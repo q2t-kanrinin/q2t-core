@@ -1,14 +1,15 @@
 """Utility for parsing FoldDSL YAML files with comment metadata."""
 
 from __future__ import annotations
+
 from pathlib import Path
 from typing import Any, Dict, List
+import re
 
 from ruamel.yaml import YAML
 from ruamel.yaml.comments import CommentedMap
 
-from src.models.fold_dsl import FoldDSL, Section, Link, Meta, Semantic, NoteNode
-
+from src.models.fold_dsl import FoldDSL
 
 
 class DSLParser:
@@ -28,8 +29,11 @@ class DSLParser:
         with open(target, "r", encoding="utf-8") as f:
             raw = f.read()
 
-        if "\u2705" in raw:  # cut off non-YAML notes starting with check mark
+        if "\u2705" in raw:
             raw = raw.split("\u2705", 1)[0]
+
+        # allow unquoted `@note` keys
+        raw = re.sub(r'(^\s*-?\s*)@note:', r'\1"@note":', raw, flags=re.MULTILINE)
 
         data: CommentedMap = self.yaml.load(raw)
 
@@ -39,10 +43,17 @@ class DSLParser:
         if "section" in data:
             data["sections"] = [data.pop("section")]
 
-        if "id" not in data and data.get("sections"):
-            root_section = data["sections"][0]
-            if isinstance(root_section, dict) and "id" in root_section:
-                data["id"] = root_section["id"]
+        raw_sections = data.get("sections", [])
+        data["sections"] = raw_sections
+
+        for link in data.get("links", []):
+            if "weight" not in link:
+                link["weight"] = 1.0
+
+        if "id" not in data and raw_sections:
+            first = raw_sections[0]
+            if isinstance(first, dict) and "id" in first:
+                data["id"] = first["id"]
 
         dsl = FoldDSL.model_validate(data)
         dsl.title = meta_from_comments.get("title")
@@ -65,33 +76,39 @@ class DSLParser:
         return result
 
 
-    def _parse_section(self, data: Dict[str, Any]) -> Section:
-        raw_children = data.get("children", [])
-        children: List[Section] = []
-        notes: List[NoteNode] = []
 
-        for child in raw_children:
-            if isinstance(child, dict) and "@note" in child:
-                notes.append(NoteNode(text=str(child["@note"])))
-            else:
-                children.append(self._parse_section(child))
+__all__ = ["DSLParser", "main"]
 
-        if "@note" in data:
-            notes.append(NoteNode(text=str(data["@note"])))
 
-        return Section(
-            id=data["id"],
-            name=data["name"],
-            description=data.get("description"),
-            tension=data.get("tension", 0),
-            children=children,
-            notes=notes,
-        )
+def main() -> None:
+    """CLI entry point for parsing FoldDSL YAML files."""
+    import argparse
+    import json
 
-__all__ = ["DSLParser"]
+    parser = argparse.ArgumentParser(description="Parse FoldDSL YAML and output JSON")
+    parser.add_argument("source", help="Path to FoldDSL YAML file")
+    parser.add_argument(
+        "dest",
+        nargs="?",
+        help="Destination directory to store JSON output (prints to stdout if omitted)",
+    )
 
-# 該当部分（パーサ内部）
-if isinstance(item, dict) and "@note" in item:
-    note_text = item["@note"]
-    note = NoteNode(text=note_text)
-    current_section.notes.append(note)
+    args = parser.parse_args()
+
+    dsl_parser = DSLParser(args.source)
+    dsl = dsl_parser.parse()
+
+    json_text = dsl.model_dump_json(by_alias=True, indent=2)
+
+    if args.dest:
+        out_dir = Path(args.dest)
+        out_dir.mkdir(parents=True, exist_ok=True)
+        out_file = out_dir / (Path(args.source).stem + ".json")
+        out_file.write_text(json_text, encoding="utf-8")
+        print(f"Wrote {out_file}")
+    else:
+        print(json_text)
+
+
+if __name__ == "__main__":  # pragma: no cover - CLI usage
+    main()

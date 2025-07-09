@@ -1,72 +1,3 @@
-<<<<<<< HEAD
-from typing import Dict, Any
-from src.models.fold_dsl import FoldDSL, Section
-
-
-def generate_canvas(fold: FoldDSL) -> Dict[str, Any]:
-    nodes = []
-    edges = []
-
-    def resolve_position(section: Section) -> Dict[str, int]:
-        pos = getattr(section, "position", {}) or {}
-        x = 300 * pos.get("phi", 0)
-        y = 300 * pos.get("psi", 0)
-        return {"x": x, "y": y}
-
-    def resolve_color(tension: int) -> str:
-        return {
-            0: "#cccccc",
-            1: "#3399ff",
-            2: "#ffaa33",
-            3: "#ff3333"
-        }.get(tension, "#cccccc")
-
-    def add_nodes(section: Section):
-        position = resolve_position(section)
-        tension = section.tension or 0
-        label = section.name
-
-        if getattr(fold, "state_marker", []):
-            markers = ", ".join(fold.state_marker)
-            label += f" [{markers}]"
-
-        nodes.append({
-            "id": section.id,
-            "type": "text",
-            "label": label,
-            "position": position,
-            "color": resolve_color(tension)
-        })
-        for child in section.children:
-            add_nodes(child)
-
-    for section in fold.sections:
-        add_nodes(section)
-
-    for link in fold.links:
-        edges.append({
-            "id": f"edge-{link.source}-{link.target}",
-            "source": link.source,
-            "target": link.target,
-            "type": link.type
-        })
-
-    return {"nodes": nodes, "edges": edges}
-
-
-def save_canvas(canvas: dict, path: str) -> None:
-    import json
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(canvas, f, indent=2, ensure_ascii=False)
-
-
-if __name__ == "__main__":
-    from src.utils.dsl_parser import DSLParser
-    parser = DSLParser("docs/fold_dsl-sample.yaml")
-    fold = parser.parse()
-    canvas = generate_canvas(fold)
-    save_canvas(canvas, "docs/fold_canvas.canvas")
-=======
 """Generate Obsidian Canvas data from :class:`FoldDSL`."""
 
 from __future__ import annotations
@@ -87,9 +18,9 @@ TENSION_COLOR_MAP: Dict[int, str] = {
 
 def _collect_linked_nodes(links: Sequence[Link]) -> set[str]:
     nodes: set[str] = set()
-    for l in links:
-        nodes.add(l.source)
-        nodes.add(l.target)
+    for link in links:
+        nodes.add(link.source)
+        nodes.add(link.target)
     return nodes
 
 
@@ -106,7 +37,6 @@ def _state_marker(section: Section, dsl: FoldDSL, linked: set[str]) -> List[str]
 
 def generate_canvas_from_fold_dsl(src: FoldDSL | str | Path) -> Dict[str, Any]:
     """Convert a :class:`FoldDSL` instance to Obsidian Canvas JSON structure."""
-
     if isinstance(src, (str, Path)):
         parser = DSLParser(str(src))
         dsl = parser.parse()
@@ -166,5 +96,40 @@ def generate_canvas_from_fold_dsl(src: FoldDSL | str | Path) -> Dict[str, Any]:
     return {"nodes": nodes, "edges": edges}
 
 
-__all__ = ["generate_canvas_from_fold_dsl"]
->>>>>>> 0ad50b7fc903bd9873e225c9cff5ef9749c5399c
+def generate_canvas(fold: FoldDSL) -> Dict[str, Any]:
+    """Backward-compatible wrapper for :func:`generate_canvas_from_fold_dsl`."""
+    return generate_canvas_from_fold_dsl(fold)
+
+
+__all__ = ["generate_canvas_from_fold_dsl", "generate_canvas", "main"]
+
+
+def main() -> None:
+    """CLI entry point to generate Obsidian Canvas from FoldDSL."""
+    import argparse
+    import json
+
+    parser = argparse.ArgumentParser(description="Generate Obsidian Canvas from FoldDSL YAML")
+    parser.add_argument("source", help="Path to FoldDSL YAML file")
+    parser.add_argument(
+        "out_dir",
+        nargs="?",
+        default=".",
+        help="Output directory for canvas file",
+    )
+
+    args = parser.parse_args()
+
+    dsl = DSLParser(args.source).parse()
+    canvas = generate_canvas_from_fold_dsl(dsl)
+
+    out_path = Path(args.out_dir)
+    out_path.mkdir(parents=True, exist_ok=True)
+    file = out_path / "fold_canvas.canvas"
+    with open(file, "w", encoding="utf-8") as f:
+        json.dump(canvas, f, ensure_ascii=False, indent=2)
+    print(f"Wrote {file}")
+
+
+if __name__ == "__main__":  # pragma: no cover - CLI usage
+    main()

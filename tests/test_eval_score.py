@@ -1,7 +1,11 @@
 from pathlib import Path
 
 from src.utils.dsl_parser import DSLParser
-from src.utils.eval_score import load_eval_template, compute_eval_scores
+from src.utils.eval_score import (
+    load_eval_template,
+    compute_eval_scores,
+    main as eval_main,
+)
 
 
 def test_compute_eval_scores(tmp_path: Path) -> None:
@@ -22,3 +26,34 @@ def test_compute_eval_scores(tmp_path: Path) -> None:
     assert "構造性" in scores
     assert "意味密度" in scores
     assert "テンション分布" in scores
+
+import pytest
+from src.models.fold_dsl import FoldDSL, Section, Meta, Semantic
+from src.utils.eval_score import sum_sections_tension
+
+
+def test_compute_eval_scores_values() -> None:
+    root = Section(id="root", name="Root", tension=1, children=[Section(id="child", name="Child", tension=2)])
+    meta = Meta(version="0.1", created="2025-01-01", author="tester")
+    semantic = Semantic(keywords=["A", "B"], themes=["T1"])
+    dsl = FoldDSL(id="x", sections=[root], links=[], meta=meta, semantic=semantic)
+
+    template = load_eval_template("docs/tension_eval.yaml")
+    scores = compute_eval_scores(dsl, template)
+
+    assert scores["構造性"] == pytest.approx(1.5)
+    assert scores["意味密度"] == pytest.approx(1.6)
+    assert scores["テンション分布"] == pytest.approx(3.0)
+    assert scores["total_score"] == pytest.approx(6.1)
+
+
+def test_sum_sections_tension() -> None:
+    root = Section(id="root", name="Root", tension=2, children=[Section(id="child", name="Child", tension=1)])
+    assert sum_sections_tension(root) == 3
+
+
+def test_eval_score_main(capsys) -> None:
+    eval_main()
+    captured = capsys.readouterr().out
+    assert "=== 評価スコア ===" in captured
+    assert "total_score" in captured

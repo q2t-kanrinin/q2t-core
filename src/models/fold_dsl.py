@@ -18,6 +18,41 @@ class Section(BaseModel):
     children: List[Section] = Field(default_factory=list)
     notes: List[NoteNode] = Field(default_factory=list)
 
+    @model_validator(mode="before")
+    @classmethod
+    def convert_children_and_notes(cls, values: dict):
+        """Normalize children and note nodes before validation."""
+        if not isinstance(values, dict):
+            return values
+
+        raw_children = values.get("children", [])
+        processed_children: List[dict | "Section"] = []
+        collected_notes: List[NoteNode] = []
+
+        for child in raw_children:
+            if isinstance(child, dict) and "@note" in child:
+                collected_notes.append(NoteNode(text=str(child["@note"])))
+            else:
+                processed_children.append(child)
+
+        if "@note" in values:
+            collected_notes.append(NoteNode(text=str(values.pop("@note"))))
+
+        # convert pre-supplied notes
+        for n in values.get("notes", []):
+            if isinstance(n, NoteNode):
+                collected_notes.append(n)
+            elif isinstance(n, dict) and "@note" in n:
+                collected_notes.append(NoteNode(text=str(n["@note"])))
+            else:
+                collected_notes.append(NoteNode.model_validate(n))
+
+        values["children"] = processed_children
+        values["notes"] = collected_notes
+        values.setdefault("tension", 0)
+
+        return values
+
 class Link(BaseModel):
     source: str
     target: str

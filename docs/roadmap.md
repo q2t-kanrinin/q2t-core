@@ -1,9 +1,3 @@
-ChatGPT:
-おう、ほなdocs/roadmap.md の叩き台いくで。
-
-✅ docs/roadmap.md たたき台
-markdown
-コードをコピーする
 # Roadmap - q2t-core
 
 このドキュメントは q2t-core の中期的な開発目標をまとめます。
