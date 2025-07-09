@@ -1,0 +1,39 @@
+# .github/workflows/generate-docs.yml
+name: Generate Rule Docs
+
+on:
+  push:
+    paths:
+      - 'schema/rules.schema.yaml'
+      - 'scripts/gen-docs.js'
+  workflow_dispatch:
+
+jobs:
+  gen-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        working-directory: scripts
+        run: |
+          npm install js-yaml
+
+      - name: Generate Markdown docs
+        working-directory: scripts
+        run: |
+          node gen-docs.js
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add ../docs/rules.md
+          git diff --quiet && echo "No changes to commit" || git commit -m "ci: update rule docs"
+          git push
